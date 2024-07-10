@@ -1,0 +1,1 @@
+缺少多媒体，安装环境 sudo apt-get install qtmultimedia5-dev
