@@ -18,7 +18,6 @@ public:
 
 signals:
     void signalStart();
-    void signalPlayIndex(int index, int times);
     //void showMsg(QString msg);
 
 private:

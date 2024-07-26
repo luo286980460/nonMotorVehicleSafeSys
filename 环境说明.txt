@@ -1,1 +1,5 @@
-缺少多媒体，安装环境 sudo apt-get install qtmultimedia5-dev
+缺少qtmultimedia5环境,安装： sudo apt-get install qtmultimedia5-dev
+using null output device查询输出设备失败：apt install *libqt5multimedia5*
+
+libhv.so 放入/usr/lib/ 下
+当前目录下/resources/下为可播放文件，文件后缀名为.pcm

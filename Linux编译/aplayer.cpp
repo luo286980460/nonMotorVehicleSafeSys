@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QAudioDeviceInfo>
 #include <QAudioFormat>
-#include <QThread>
 
 aPlayer::aPlayer(QObject *parent)
     : QObject{parent}
@@ -42,7 +41,6 @@ void aPlayer::clearPlayList()
 
 bool aPlayer::playStart(QString& error)
 {
-    QThread::msleep(200);
     // 列表为空
     if(m_playList.size() < 1){
         error = "list is empty";
@@ -101,28 +99,10 @@ bool aPlayer::playStop(QString& error)
 QStringList aPlayer::getPlayList()
 {
     QStringList playList;
-    int i=0;
     foreach(QString str, m_playList){
-        playList <<  QString("%1. %2").arg(i).arg(str.split("/").last());
-        i++;
+        playList << str.split("/").last();
     }
     return playList;
-}
-
-int aPlayer::getPlayListNumber()
-{
-    return m_playList.size();
-}
-
-void aPlayer::playIndex(int index, int times)
-{
-    m_playListIndex = index;
-    m_loopTimes = times;
-    setLoopPattern(singleCycle);
-
-    QString error;
-    playStop(error);
-    playStart(error);
 }
 
 void aPlayer::setLoopPattern(e_loopPattern loopPattern)
@@ -159,18 +139,13 @@ void aPlayer::setVolume(int volume)
     m_audioOutput->setVolume(volume / 10.0);
 }
 
-void aPlayer::waitForCmd()
-{
-    QThread::msleep(300);
-}
-
 void aPlayer::init()
 {
     m_playListIndex = -1;
 
     QList<QAudioDeviceInfo> list = QAudioDeviceInfo::availableDevices(QAudio::AudioOutput);
     for(int i=0; i<list.size(); i++){
-        //qDebug() << list.at(i).deviceName();
+        qDebug() << list.at(i).deviceName();
         if(i==0){
             m_audioDeviceInfo = list.at(i);
         }
@@ -184,7 +159,6 @@ void aPlayer::init()
     m_format.setByteOrder(QAudioFormat::LittleEndian);
 
     m_audioOutput = new QAudioOutput(m_audioDeviceInfo, m_format);
-    qDebug() << " 输出设备: " << m_audioDeviceInfo.deviceName();
     connect(m_audioOutput, &QAudioOutput::stateChanged, this, [=](QAudio::State state){
 
 
@@ -202,31 +176,8 @@ void aPlayer::init()
             slotPlayStop();
             switch(m_loopPattern){
             case singleCycle:       // 单曲循环
-
-                m_currLoopTimes++;
-                if(m_loopTimes < 0){
-                    //qDebug() << "1111111111111  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
-                    slotPlayStart();
-
-                    break;
-                }else{
-                    if(m_currLoopTimes < m_loopTimes){
-                        //qDebug() << "2222222222222  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
-                        slotPlayStart();
-                        break;
-                    } else if(m_currLoopTimes == m_loopTimes){
-                        //qDebug() << "3333333333333  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
-                        slotPlayStop();
-                        m_loopTimes = -1;
-                        m_currLoopTimes = 0;
-                        m_loopPattern = m_lastLoopPattern;
-                        break;
-                    } else {
-                        m_currLoopTimes = 0;
-                        break;
-                    }
-                }
-
+                slotPlayStart();
+                break;
             case loopPlayback:      // 列表循环
 
                 if(m_playListIndex < m_playList.size()-1){
@@ -271,23 +222,7 @@ void aPlayer::slotPlayStop()
     playStop(error);
 }
 
-void aPlayer::slotPlayIndex(int index, int times)
-{
-    m_lastLoopPattern = m_loopPattern;
-    playIndex(index, times);
-}
-
 void aPlayer::slotClearPlayListp()
 {
     clearPlayList();
-}
-
-void aPlayer::slotNormalCmd(e_cmd, QStringList args)
-{
-
-}
-
-void aPlayer::slotListCmd(e_cmd, QStringList args)
-{
-
 }

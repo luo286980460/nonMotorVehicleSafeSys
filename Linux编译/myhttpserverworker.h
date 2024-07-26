@@ -26,7 +26,6 @@ signals:
     //void showMsg(QString msg);
     void signalPlayStart();
     void signalPlayStop();
-    void signalPlayIndex(int index, int times);
     void signalClearPlayListp();
 
 public slots:

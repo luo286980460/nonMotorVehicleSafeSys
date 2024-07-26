@@ -238,46 +238,6 @@ void MyHttpServerWorker::initHttpServer()
             return resp->Data(jsonBy.data(), jsonBy.size());
         }
     });
-
-    m_router->POST("/playIndex", [=](const HttpContextPtr& ctx) {
-        QJsonObject backJson;
-        QString error;
-        QJsonDocument jsonObj = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
-        QJsonObject resJson = jsonObj.object();
-        int index;
-        int times;
-
-        // 是否含有键值index和times  index和times值是否为整数
-        if(!resJson.contains("index") || !resJson.value("index").isDouble() ||
-            !resJson.contains("times") || !resJson.value("times").isDouble()){
-            backJson.insert("code", 1);
-            backJson.insert("msg", "json fromat error");
-
-            return ctx->sendString(QJsonDocument(backJson).toJson().toStdString());
-        }
-
-        times = resJson.value("times").toInt();
-        // index值是否合法
-        index = resJson.value("index").toInt();
-        if(index < 0 || index >= m_aPlayer->getPlayListNumber()){
-            backJson.insert("code", 1);
-            backJson.insert("msg", "volume value error");
-
-            return ctx->sendString(QJsonDocument(backJson).toJson().toStdString());
-        }
-
-        if(m_aPlayer){
-            emit signalPlayIndex(index, times);
-            backJson.insert("code", 0);
-            backJson.insert("msg", "successful");
-            return ctx->sendString(QJsonDocument(backJson).toJson().toStdString());
-        }else{
-            backJson.insert("code", 1);
-            backJson.insert("msg", "m_aPlayer is nullptr");
-
-            return ctx->sendString(QJsonDocument(backJson).toJson().toStdString());
-        }
-    });
 /*
     m_router->POST("/setLoopPattern", [=](const HttpContextPtr& ctx) {
 
@@ -362,7 +322,6 @@ void MyHttpServerWorker::initAPlayer()
     m_aPlayer = new aPlayer;
     connect(this, &MyHttpServerWorker::signalPlayStart, m_aPlayer, &aPlayer::slotPlayStart);
     connect(this, &MyHttpServerWorker::signalPlayStop, m_aPlayer, &aPlayer::slotPlayStop);
-    connect(this, &MyHttpServerWorker::signalPlayIndex, m_aPlayer, &aPlayer::slotPlayIndex);
     connect(this, &MyHttpServerWorker::signalClearPlayListp, m_aPlayer, &aPlayer::slotClearPlayListp);
 }
 
