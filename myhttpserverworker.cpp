@@ -60,6 +60,7 @@ void MyHttpServerWorker::initHttpServer()
         QJsonObject json;
         QString error;
 
+        QThread::msleep(300);
         emit signalPlayStart();
         json.insert("code", 0);
         json.insert("msg", "successful");

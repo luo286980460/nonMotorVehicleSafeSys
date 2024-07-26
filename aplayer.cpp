@@ -42,7 +42,7 @@ void aPlayer::clearPlayList()
 
 bool aPlayer::playStart(QString& error)
 {
-    QThread::msleep(200);
+    QString error1;
     // 列表为空
     if(m_playList.size() < 1){
         error = "list is empty";
@@ -60,7 +60,7 @@ bool aPlayer::playStart(QString& error)
 
     // 如果文件流打开，先关闭文件流
     if(m_audioFile.isOpen()){
-        playStop(error);
+        playStop(error1);
         m_audioFile.close();
     }
 
@@ -68,7 +68,7 @@ bool aPlayer::playStart(QString& error)
     m_audioFile.setFileName(m_playList.at(m_playListIndex));
     if (!m_audioFile.open(QIODevice::ReadOnly)) {
         error = "Failed to open audio file";
-        m_playStatu = stopped;
+        playStop(error1);
         return false;
     }
 
@@ -80,7 +80,7 @@ bool aPlayer::playStart(QString& error)
         return true;
     }else{
         error = "m_audioOutput is empty";
-        m_playStatu = stopped;
+        playStop(error1);
         return false;
     }
 }
@@ -205,17 +205,18 @@ void aPlayer::init()
 
                 m_currLoopTimes++;
                 if(m_loopTimes < 0){
-                    //qDebug() << "1111111111111  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
+                    qDebug() << "1111111111111  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
+                    m_currLoopTimes = 0;
                     slotPlayStart();
 
                     break;
                 }else{
                     if(m_currLoopTimes < m_loopTimes){
-                        //qDebug() << "2222222222222  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
+                        qDebug() << "2222222222222  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
                         slotPlayStart();
                         break;
                     } else if(m_currLoopTimes == m_loopTimes){
-                        //qDebug() << "3333333333333  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
+                        qDebug() << "3333333333333  m_currLoopTimes: " << m_currLoopTimes << "m_loopTimes: " << m_loopTimes;
                         slotPlayStop();
                         m_loopTimes = -1;
                         m_currLoopTimes = 0;
