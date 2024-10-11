@@ -262,7 +262,7 @@ void MyHttpServerWorker::initHttpServer()
         index = resJson.value("index").toInt();
         if(index < 0 || index >= m_aPlayer->getPlayListNumber()){
             backJson.insert("code", 1);
-            backJson.insert("msg", "volume value error");
+            backJson.insert("msg", "index error");
 
             return ctx->sendString(QJsonDocument(backJson).toJson().toStdString());
         }

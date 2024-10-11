@@ -35,7 +35,7 @@ public slots:
 private:
     HttpServer* m_server = nullptr;
     HttpService* m_router = nullptr;
-    int m_port = 8888;
+    int m_port = 23334;
     aPlayer* m_aPlayer = nullptr;
 };
 
