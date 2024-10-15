@@ -49,8 +49,10 @@ void MyHttpServerWorker::initHttpServer()
     m_router->GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         Json ex3 = {
-                    {"connected", true},
                     {"time", QDateTime::currentDateTime().toString("yyyy年MM月dd日 hh:mm:ss").toStdString()},
+                    {"Name", "Linux音频播放系统"},
+                    {"Version", "1.3.0"},
+                    {"Msg", "仅支持播放.Pcm文件"}
                     };
         return resp->Json(ex3);
         //return resp->String("connected............");
