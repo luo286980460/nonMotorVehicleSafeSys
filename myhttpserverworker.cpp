@@ -1,14 +1,35 @@
 #include "myhttpserverworker.h"
 #include "include/libhv/hthread.h"    // import hv_gettid
 #include "include/libhv/hasync.h"     // import hv::async
+
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QDateTime>
+#include <QImage>
+#include <QApplication>
+#include <QDir>
+#include <QNetworkReply>
+#include <QBuffer>
 #include <QDebug>
 
-#define TEST_HTTPS 0
+#define TEST_HTTP                   0
+#define IMG_SAVE_PATH               "/imgs"
+
+#define NOVA_PROGRAM_TEXT           "http://%1/screenOn/Text"
+#define NOVA_PROGRAM_PIC            "http://%1/screenOn/TextPic"
+#define NOVA_PROGRAM_TEXT_AND_PIC   "http://%1/screenOn/TextAndPic"
 
 MyHttpServerWorker::MyHttpServerWorker(QObject *parent)
     : QObject{parent}
+    , m_aPlayerIpPort("127.0.0.1:23334")
+    , m_novaScreenIpPort("127.0.0.1:23335")
 {
-
+    m_imgSavePath = QApplication::applicationDirPath() + IMG_SAVE_PATH;
+    QDir imgPath(m_imgSavePath);
+    if(!imgPath.exists()){
+        imgPath.mkpath(m_imgSavePath);
+    }
+    connect(this, &MyHttpServerWorker::signalPost, this, &MyHttpServerWorker::post);
 }
 
 MyHttpServerWorker::~MyHttpServerWorker()
@@ -16,8 +37,103 @@ MyHttpServerWorker::~MyHttpServerWorker()
     hv::async::cleanup();
 }
 
+QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
+{
+    // QJsonObject break_rule_info = json.value("break_rule_info").toObject();
+    // QString base64Str = break_rule_info.value("img").toString();
+
+    // QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
+    // file.open(QIODevice::WriteOnly);
+    // file.write(QJsonDocument(json).toJson());
+    // file.close();
+
+    // // 抠图
+    // QJsonObject detect_info = break_rule_info.value("detect_info").toObject();
+    // QByteArray base64 = QByteArray::fromBase64(detect_info.value("img").toString().toLocal8Bit());
+    // QImage image;
+    // image.loadFromData(QByteArray::fromBase64(base64Str.toLocal8Bit()));
+
+    // int x, y, width, height;
+
+    // x = detect_info.value("x").toInt();
+    // y = detect_info.value("y").toInt();
+    // width = detect_info.value("width").toInt();
+    // height = detect_info.value("height").toInt();
+
+    // QImage img = image.copy(x, y, width, height);
+    // QByteArray ba;
+    // QBuffer buf(&ba);
+    // buf.open(QIODevice::WriteOnly);
+    // img.save(&buf, "jpg");
+    // QByteArray ba2 = ba.toBase64();
+    // QString b64str = QString::fromLatin1(ba2);
+
+    QJsonObject face_info = json.value("face_info").toObject();
+    QString base64Str = face_info.value("img").toString();
+
+    // 打包数据
+    QJsonObject jsonData;
+    jsonData.insert("FontSize", 32);
+    jsonData.insert("Content", "请安全驾驶");
+    jsonData.insert("Img", base64Str);
+
+    QByteArray data = QJsonDocument(jsonData).toJson();
+    emit signalPost(QString(NOVA_PROGRAM_TEXT_AND_PIC).arg(m_novaScreenIpPort), data);
+
+    return QJsonDocument(jsonData);
+}
+
+void MyHttpServerWorker::post(QString url, QByteArray data)
+{
+    // 构造请求
+    QNetworkRequest request;
+    /*httpbin.org 这个网站能测试 HTTP 请求和响应的各种信息，比如 cookie、ip、headers 和登录验证等，且支持 GET、POST 等多种方法，对 web 开发和测试很有帮助。*/
+    request.setUrl(QUrl(url));
+
+    //request.setUrl(QUrl("http://10.181.218.209:8080/login"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    //request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
+
+    // 发送请求
+    m_manager->post(request, data);
+}
+
+void MyHttpServerWorker::postBack(QNetworkReply* reply)
+{
+    //qDebug()<<reply->readAll().data(); //输出所有响应内容
+
+    // 获取响应信息
+    QByteArray bytes = reply->readAll();
+
+    QJsonParseError jsonError;
+    QJsonDocument doucment = QJsonDocument::fromJson(bytes, &jsonError);
+    if (jsonError.error != QJsonParseError::NoError) {
+        qDebug() << QStringLiteral("解析Json失败");
+        return;
+    }
+
+    // 解析Json
+    if (doucment.isObject())
+    {
+        QJsonObject obj = doucment.object();
+        QJsonValue value;
+        if (obj.contains("data"))
+        {
+            value = obj.take("data");
+            if (value.isString())
+            {
+                QString data = value.toString();
+                qDebug() << data;
+            }
+        }
+    }
+
+}
+
 void MyHttpServerWorker::slotStart()
 {
+    m_manager = new QNetworkAccessManager;
+
     HV_MEMCHECK;
 
     /* Static file service */
@@ -36,6 +152,15 @@ void MyHttpServerWorker::slotStart()
     /*          POST            */
 
     // curl -v http://ip:port/echo -d "hello,world!"
+    m_router.POST("/YuanHong/nonMotorVehicleIllegalInfo", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
+
+        qDebug() << jsonDoc;
+
+        return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+    });
+
     m_router.POST("/echo", [](const HttpContextPtr& ctx) {
         return ctx->send(ctx->body(), ctx->type());
     });
@@ -46,11 +171,12 @@ void MyHttpServerWorker::slotStart()
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"happy", true},
-                    {"pi", 3.141},
+                    {"time", QDateTime::currentDateTime().toString("yyyy年MM月dd日 hh:mm:ss").toStdString()},
+                    {"Name", "非机动车安全防治一体机"},
+                    {"Version", "0.1"},
+                    {"Msg", "测试版"}
                     };
         return resp->Json(ex3);
-        //return resp->String("connected............");
     });
 
     // curl -v http://ip:port/data

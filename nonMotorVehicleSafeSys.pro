@@ -1,4 +1,4 @@
-QT = core
+QT = core gui widgets network
 
 CONFIG += c++17 cmdline
 

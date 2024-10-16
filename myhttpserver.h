@@ -21,7 +21,7 @@ signals:
 
 private:
     QThread m_workerThread;
-    MyHttpServerWorker *m_work = nullptr;
+    MyHttpServerWorker* m_work = nullptr;
 };
 
 #endif // MYHTTPSERVER_H

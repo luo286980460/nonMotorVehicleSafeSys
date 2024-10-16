@@ -19,6 +19,7 @@
  *  端口：
  *      主服务端口：23333
  *      音频服务端口：23334
+ *      诺瓦服务端口：23335
 */
 
 int main(int argc, char *argv[])
@@ -35,7 +36,6 @@ int main(int argc, char *argv[])
 
     // If you do not need a running Qt event loop, remove the call
     // to a.exec() or use the Non-Qt Plain C++ Application template.
-
 
     MyMain myMain;
 
