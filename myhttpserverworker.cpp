@@ -10,14 +10,16 @@
 #include <QDir>
 #include <QNetworkReply>
 #include <QBuffer>
+#include <QPainter>
 #include <QDebug>
 
 #define TEST_HTTP                   0
-#define IMG_SAVE_PATH               "/imgs"
+#define IMG_SAVE_PATH               "/Pics"
 
 #define NOVA_PROGRAM_TEXT           "http://%1/screenOn/Text"
 #define NOVA_PROGRAM_PIC            "http://%1/screenOn/TextPic"
 #define NOVA_PROGRAM_TEXT_AND_PIC   "http://%1/screenOn/TextAndPic"
+#define BACK_BLACK_FILE_NAME        "/backBlack.jpg"
 
 MyHttpServerWorker::MyHttpServerWorker(QObject *parent)
     : QObject{parent}
@@ -39,46 +41,55 @@ MyHttpServerWorker::~MyHttpServerWorker()
 
 QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
 {
-    // QJsonObject break_rule_info = json.value("break_rule_info").toObject();
-    // QString base64Str = break_rule_info.value("img").toString();
+    QJsonObject break_rule_info = json.value("break_rule_info").toObject();
+    QString b64StrBackImg = break_rule_info.value("img").toString();
+    QImage imgBack = QImage::fromData(QByteArray::fromBase64(b64StrBackImg.toLocal8Bit()));
 
-    // QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
-    // file.open(QIODevice::WriteOnly);
-    // file.write(QJsonDocument(json).toJson());
-    // file.close();
+    // 备份命令
+    QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
+    file.open(QIODevice::WriteOnly);
+    file.write(QJsonDocument(json).toJson());
+    file.close();
 
-    // // 抠图
-    // QJsonObject detect_info = break_rule_info.value("detect_info").toObject();
-    // QByteArray base64 = QByteArray::fromBase64(detect_info.value("img").toString().toLocal8Bit());
-    // QImage image;
-    // image.loadFromData(QByteArray::fromBase64(base64Str.toLocal8Bit()));
+    //qDebug() << json;
 
-    // int x, y, width, height;
+    // 抠非机动车图片
+    QJsonObject detect_info = break_rule_info.value("detect_info").toObject();
+    //QByteArray base64 = QByteArray::fromBase64(break_rule_info.value("img").toString().toLocal8Bit());
+    int x, y, width, height;
+    x = detect_info.value("x").toInt();
+    y = detect_info.value("y").toInt();
+    width = detect_info.value("width").toInt();
+    height = detect_info.value("height").toInt();
+    QImage imgCar = imgBack.copy(x - (height -width )/2, y, height, height);//.scaledToHeight(160);
 
-    // x = detect_info.value("x").toInt();
-    // y = detect_info.value("y").toInt();
-    // width = detect_info.value("width").toInt();
-    // height = detect_info.value("height").toInt();
+    // QJsonObject face_info = json.value("face_info").toObject();
+    // QString base64Str = face_info.value("img").toString();
 
-    // QImage img = image.copy(x, y, width, height);
-    // QByteArray ba;
-    // QBuffer buf(&ba);
-    // buf.open(QIODevice::WriteOnly);
-    // img.save(&buf, "jpg");
-    // QByteArray ba2 = ba.toBase64();
-    // QString b64str = QString::fromLatin1(ba2);
+    // 生产黑底图
+    // QImage back(160,160,QImage::Format_RGB888);
+    // back.fill(QColor(Qt::black));
 
-    QJsonObject face_info = json.value("face_info").toObject();
-    QString base64Str = face_info.value("img").toString();
+    // 图片叠加
+    // QPainter painter(&back);
+    // painter.drawImage(imgCar.width() < 160 ? (160 - imgCar.width()) / 2 : 0,
+    //                     0, imgCar);
+    // painter.end();
 
     // 打包数据
     QJsonObject jsonData;
     jsonData.insert("FontSize", 32);
     jsonData.insert("Content", "请安全驾驶");
-    jsonData.insert("Img", base64Str);
+    jsonData.insert("Img", img2base64(imgCar));
 
     QByteArray data = QJsonDocument(jsonData).toJson();
+
+    // 上屏
     emit signalPost(QString(NOVA_PROGRAM_TEXT_AND_PIC).arg(m_novaScreenIpPort), data);
+
+    // 语音
+    // 根据违法信息来进行语音提示
+    //  emit signalPost();
 
     return QJsonDocument(jsonData);
 }
@@ -130,6 +141,17 @@ void MyHttpServerWorker::postBack(QNetworkReply* reply)
 
 }
 
+QString MyHttpServerWorker::img2base64(QImage image)
+{
+    // 图片转base64
+    QByteArray ba;
+    QBuffer buf(&ba);
+    buf.open(QIODevice::WriteOnly);
+    image.save(&buf, "jpg");
+    QByteArray ba2 = ba.toBase64();
+    return QString::fromLatin1(ba2);
+}
+
 void MyHttpServerWorker::slotStart()
 {
     m_manager = new QNetworkAccessManager;
@@ -156,7 +178,7 @@ void MyHttpServerWorker::slotStart()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
         QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
 
-        qDebug() << jsonDoc;
+        //qDebug() << jsonDoc;
 
         return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
     });

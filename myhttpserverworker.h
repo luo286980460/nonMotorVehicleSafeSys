@@ -17,6 +17,7 @@ private:
     QJsonDocument unpackNonMotorVehicleIllegalInfo(QJsonObject& json);
     //void post(QString url, QByteArray& data);
     void postBack(QNetworkReply* reply);
+    QString img2base64(QImage image);
 
 signals:
     void signalPost(QString url, QByteArray data);
