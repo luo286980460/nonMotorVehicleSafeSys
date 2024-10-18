@@ -31,35 +31,36 @@ MyHttpServerWorker::~MyHttpServerWorker()
 
 QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
 {
-    QJsonObject jsonBack;
-    QString msg;
-    QJsonValue fontSizeJV = json.value("FontSize");
-    QJsonValue contentJV = json.value("Content");
-    int fontSize = fontSizeJV.toInt();
-    QString content;
+    return QJsonDocument();
+    // QJsonObject jsonBack;
+    // QString msg;
+    // QJsonValue fontSizeJV = json.value("FontSize");
+    // QJsonValue contentJV = json.value("Content");
+    // int fontSize = fontSizeJV.toInt();
+    // QString content;
 
-    jsonBack.insert("code", 0);
+    // jsonBack.insert("code", 0);
 
-    if(!fontSizeJV.isDouble() || fontSize <= 0){
-        msg += "error1 FontSize not int or fontSize <= 0;";
-        jsonBack["code"] = -1;
-    }else{
-        fontSize = fontSizeJV.toInt();
-    }
+    // if(!fontSizeJV.isDouble() || fontSize <= 0){
+    //     msg += "error1 FontSize not int or fontSize <= 0;";
+    //     jsonBack["code"] = -1;
+    // }else{
+    //     fontSize = fontSizeJV.toInt();
+    // }
 
-    if(!contentJV.isString()){
-        msg += "error2 Content not string;";
-        jsonBack["code"] = -1;
-    }else{
-        content = contentJV.toString();
-    }
+    // if(!contentJV.isString()){
+    //     msg += "error2 Content not string;";
+    //     jsonBack["code"] = -1;
+    // }else{
+    //     content = contentJV.toString();
+    // }
 
-    jsonBack.insert("msg", msg);
-    if(jsonBack.value("code").toInt() == 0){
-        emit this->signalPlayProgram1(fontSize, content);
-    }
+    // jsonBack.insert("msg", msg);
+    // if(jsonBack.value("code").toInt() == 0){
+    //     emit this->signalPlayProgram1(fontSize, content);
+    // }
 
-    return QJsonDocument(jsonBack);
+    // return QJsonDocument(jsonBack);
 
     //QByteArray base64 = QByteArray::fromBase64(json.value("img").toString().toLocal8Bit());
     //QImage image;
@@ -88,30 +89,52 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
 {
     QJsonObject jsonBack;
     QString msg;
-    QJsonValue fontSizeJV = json.value("FontSize");
-    QJsonValue contentJV = json.value("Content");
-    int fontSize = fontSizeJV.toInt();
-    QString content;
+    QJsonValue FontSizeJV = json.value("FontSize");         // 字号
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
+    QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
+    int FontSize = FontSizeJV.toInt();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString Content = ContentJV.toString();
+    int AudioSwitch = AudioSwitchJV.toInt();
+    int Audiovolume = AudiovolumeJV.toInt();
 
     jsonBack.insert("code", 0);
 
-    if(!fontSizeJV.isDouble() || fontSize <= 0){
-        msg += "error1 FontSize not int or fontSize <= 0;";
+    // 字号 合法性
+    if(!FontSizeJV.isDouble() || FontSize <= 0){
+        msg += "error1 FontSize not int or FontSize <= 0;";
         jsonBack["code"] = -1;
-    }else{
-        fontSize = fontSizeJV.toInt();
     }
 
-    if(!contentJV.isString()){
-        msg += "error2 Content not string;";
+    // 音频次数 合法性
+    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
+        msg += "error2 AudioTimes not int or AudioTimes <= 0;";
         jsonBack["code"] = -1;
-    }else{
-        content = contentJV.toString();
+    }
+
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error3 Content not string;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频开关 合法性
+    if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
+        msg += "error4 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频音量 合法性
+    if(!AudiovolumeJV.isDouble() || Audiovolume < 1 && Audiovolume > 9){
+        msg += "error5 Audiovolume not int or 1~9;";
+        jsonBack["code"] = -1;
     }
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
-        emit this->signalPlayProgram1(fontSize, content);
+        emit this->signalPlayProgram1(FontSize, AudioTimes, Content, AudioSwitch, Audiovolume);
     }
 
     return QJsonDocument(jsonBack);
@@ -146,39 +169,59 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram3(QJsonObject &json)
 {
     QJsonObject jsonBack;
     QString msg;
-    QJsonValue fontSizeJV = json.value("FontSize");
-    QJsonValue contentJV = json.value("Content");
-    QJsonValue imgJV = json.value("Img");
-    int fontSize = fontSizeJV.toInt();
-    QString content;
-    QString img;
+    QJsonValue FontSizeJV = json.value("FontSize");         // 字号
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
+    QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
+    QJsonValue imgJV = json.value("Img");                   // 图片
+    int FontSize = FontSizeJV.toInt();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString Content = ContentJV.toString();
+    int AudioSwitch = AudioSwitchJV.toInt();
+    int Audiovolume = AudiovolumeJV.toInt();
+    QString img = imgJV.toString();
 
     jsonBack.insert("code", 0);
 
-    if(!fontSizeJV.isDouble() || fontSize <= 0){
-        msg += "error1 FontSize not int or fontSize <= 0;";
+    // 字号 合法性
+    if(!FontSizeJV.isDouble() || FontSize <= 0){
+        msg += "error1 FontSize not int or FontSize <= 0;";
         jsonBack["code"] = -1;
-    }else{
-        fontSize = fontSizeJV.toInt();
     }
 
-    if(!contentJV.isString()){
-        msg += "error2 Content not string;";
+    // 音频次数 合法性
+    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
+        msg += "error2 AudioTimes not int or AudioTimes <= 0;";
         jsonBack["code"] = -1;
-    }else{
-        content = contentJV.toString();
+    }
+
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error3 Content not string;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频开关 合法性
+    if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
+        msg += "error4 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频音量 合法性
+    if(!AudiovolumeJV.isDouble() || Audiovolume < 1 && Audiovolume > 9){
+        msg += "error5 Audiovolume not int or 1~9;";
+        jsonBack["code"] = -1;
     }
 
     if(!imgJV.isString()){
         msg += "error3 Img not string;";
         jsonBack["code"] = -1;
-    }else{
-        img = imgJV.toString();
     }
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
-        emit this->signalPlayProgram3(fontSize, content, img);
+        emit this->signalPlayProgram3(FontSize, AudioTimes, Content, AudioSwitch, Audiovolume, img);
     }
 
     return QJsonDocument(jsonBack);
@@ -229,7 +272,8 @@ void MyHttpServerWorker::slotStart()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
         QJsonObject json = jsonDoc.object();
 
-        return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->sendString("未实现");
     });
 
     m_router.POST("/echo", [](const HttpContextPtr& ctx) {

@@ -17,11 +17,13 @@ private:
     QJsonDocument unpackPlayProgram1(QJsonObject& json);
     QJsonDocument unpackPlayProgram2(QJsonObject& json);
     QJsonDocument unpackPlayProgram3(QJsonObject& json);
+    //QJsonDocument unpackPlayProgramOff(QJsonObject& json);
 
 signals:
-    void signalPlayProgram1(int fontSize, QString content);
+    void signalPlayProgram1(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume);
     void signalPlayProgram2(QString base64);
-    void signalPlayProgram3(int fontSize, QString content, QString base64);
+    void signalPlayProgram3(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume
+                            , QString base64);
 
 public slots:
     void slotStart();

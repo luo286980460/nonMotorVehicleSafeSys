@@ -26,9 +26,10 @@ signals:
 public slots:
     void slotInit();
     void slotIllegalAct();              // 相机违法行为
-    void slotPlayProgram1(int fontSize, QString content);
+    void slotPlayProgram1(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume);
     void slotPlayProgram2(QString base64);
-    void slotPlayProgram3(int fontSize, QString content, QString base64);
+    void slotPlayProgram3(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume
+                          , QString base64);
 
 private:
     QString m_ip;
@@ -40,6 +41,7 @@ private:
     int m_playFlag = 3;                     // m_playFlag == m_ProgramInterval时，才有权限播放
     int m_ProgramInterval = 3;
     QString m_illegalPicPath;               // 违法找片路径
+    int m_imgSaveLevel = 10;
 };
 
 #endif // NOVACONTROLLERWORKER_H
