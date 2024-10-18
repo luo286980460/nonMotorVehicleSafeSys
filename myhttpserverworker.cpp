@@ -41,6 +41,7 @@ MyHttpServerWorker::~MyHttpServerWorker()
 
 QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
 {
+    qDebug() << QDateTime::currentDateTime().toString("******************************************************* ： yyyyMMdd hh:mm:ss.zzz");
     QJsonObject break_rule_info = json.value("break_rule_info").toObject();
     QString b64StrBackImg = break_rule_info.value("img").toString();
     QImage imgBack = QImage::fromData(QByteArray::fromBase64(b64StrBackImg.toLocal8Bit()));
@@ -62,6 +63,7 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     width = detect_info.value("width").toInt();
     height = detect_info.value("height").toInt();
     QImage imgCar = imgBack.copy(x - (height -width )/2, y, height, height);//.scaledToHeight(160);
+    //QImage imgCar = imgBack.copy(x, y, width, height).scaledToHeight(160);
 
     // QJsonObject face_info = json.value("face_info").toObject();
     // QString base64Str = face_info.value("img").toString();
@@ -78,8 +80,19 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
 
     // 打包数据
     QJsonObject jsonData;
+
+    // "FontSize": 33,
+    // "AudioTimes": 1,
+    // "Content": "雨天路滑减速慢行",
+    // "AudioSwitch": 0,
+    // "Audiovolume": 1,
+
     jsonData.insert("FontSize", 32);
+    jsonData.insert("AudioTimes", 1);
     jsonData.insert("Content", "请安全驾驶");
+    jsonData.insert("AudioSwitch", 1);
+    jsonData.insert("Audiovolume", 1);
+
     jsonData.insert("Img", img2base64(imgCar));
 
     QByteArray data = QJsonDocument(jsonData).toJson();
