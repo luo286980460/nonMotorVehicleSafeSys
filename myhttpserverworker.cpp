@@ -45,6 +45,7 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     QJsonObject break_rule_info = json.value("break_rule_info").toObject();
     QString b64StrBackImg = break_rule_info.value("img").toString();
     QImage imgBack = QImage::fromData(QByteArray::fromBase64(b64StrBackImg.toLocal8Bit()));
+    e_illegalAct illegalAct = (e_illegalAct)break_rule_info.value("break_type").toInt();
 
     // 备份命令
     QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
@@ -62,34 +63,47 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     y = detect_info.value("y").toInt();
     width = detect_info.value("width").toInt();
     height = detect_info.value("height").toInt();
-    QImage imgCar = imgBack.copy(x - (height -width )/2, y, height, height);//.scaledToHeight(160);
-    //QImage imgCar = imgBack.copy(x, y, width, height).scaledToHeight(160);
 
-    // QJsonObject face_info = json.value("face_info").toObject();
-    // QString base64Str = face_info.value("img").toString();
+    int leftOffset = (height - width) / 2;
+    if(leftOffset > x){
+        x = 0;
+    }else if(imgBack.width() < x + height){
+        x = imgBack.width() - height;
+    }else{
+        x = x - leftOffset;
+    }
 
-    // 生产黑底图
-    // QImage back(160,160,QImage::Format_RGB888);
-    // back.fill(QColor(Qt::black));
-
-    // 图片叠加
-    // QPainter painter(&back);
-    // painter.drawImage(imgCar.width() < 160 ? (160 - imgCar.width()) / 2 : 0,
-    //                     0, imgCar);
-    // painter.end();
+    QImage imgCar = imgBack.copy(x, y, height, height);
 
     // 打包数据
     QJsonObject jsonData;
 
-    // "FontSize": 33,
-    // "AudioTimes": 1,
-    // "Content": "雨天路滑减速慢行",
-    // "AudioSwitch": 0,
-    // "Audiovolume": 1,
-
     jsonData.insert("FontSize", 32);
     jsonData.insert("AudioTimes", 1);
-    jsonData.insert("Content", "请安全驾驶");
+
+    switch(illegalAct){
+    case withoutHelmet:
+        jsonData.insert("Content", "请戴好头盔");
+        jsonData.insert("AudioContent", "请戴好头盔");
+        break;
+    case manned:
+        jsonData.insert("Content", "请不要违法载人");
+        jsonData.insert("AudioContent", "请不要违法载人");
+        break;
+    case retrograde:
+        jsonData.insert("Content", "请不要逆行");
+        jsonData.insert("AudioContent", "请不要逆行");
+        break;
+    case jiZhanFei:
+        jsonData.insert("Content", "请勿违法占道");
+        jsonData.insert("AudioContent", "请勿违法占道");
+        break;
+    default:
+        jsonData.insert("Content", "请安全驾驶");
+        jsonData.insert("AudioContent", "请安全驾驶");
+        break;
+    }
+
     jsonData.insert("AudioSwitch", 1);
     jsonData.insert("Audiovolume", 1);
 
@@ -103,6 +117,9 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     // 语音
     // 根据违法信息来进行语音提示
     //  emit signalPost();
+
+    // 上传给黄杨
+    sendToBackServer(json);
 
     return QJsonDocument(jsonData);
 }
@@ -165,8 +182,14 @@ QString MyHttpServerWorker::img2base64(QImage image)
     return QString::fromLatin1(ba2);
 }
 
+void MyHttpServerWorker::sendToBackServer(QJsonObject &json)
+{
+
+}
+
 void MyHttpServerWorker::slotStart()
 {
+    qDebug() << "***********************************************";
     m_manager = new QNetworkAccessManager;
 
     HV_MEMCHECK;
