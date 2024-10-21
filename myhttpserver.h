@@ -18,10 +18,10 @@ public:
 
 signals:
     void signalStart();
-    void signalPlayProgram1(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume);
+    void signalPlayProgram1(int fontSize, QString content, int audioTimes, QString voiceContent, int audioSwitch, int audiovolume);
     void signalPlayProgram2(QString base64);
-    void signalPlayProgram3(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume
-                            , QString base64);
+    void signalPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent,
+                            int audioSwitch, int audiovolume , QString base64);
 
 
 private:

@@ -143,18 +143,17 @@ void NovaControllerWorker::slotIllegalAct()
     }
 }
 
-void NovaControllerWorker::slotPlayProgram1(int fontSize, int audioTimes,
-                                            QString content, int audioSwitch, int audiovolume)
+void NovaControllerWorker::slotPlayProgram1(int fontSize, QString content, int audioTimes
+                                            , QString voiceContent, int audioSwitch, int audiovolume)
 {
-
-
-
     char* program = QString(PROGRAM1)
                         .arg(fontSize)
-                        .arg(audioTimes)
                         .arg(content)
+                        .arg(audioTimes)
+                        .arg(voiceContent)
                         .arg(audioSwitch)
-                        .arg(audiovolume).toLocal8Bit().data();
+                        .arg(audiovolume)
+                        .toLocal8Bit().data();
 
     //qDebug() << "\n************************************************************************************************************************";
     //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
@@ -195,8 +194,8 @@ void NovaControllerWorker::slotPlayProgram2(QString base64)
 
 }
 
-void NovaControllerWorker::slotPlayProgram3(int fontSize, int audioTimes, QString content, int audioSwitch, int audiovolume
-                                            , QString base64)
+void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent
+                                            , int audioSwitch, int audiovolume , QString base64)
 {
     QImage image;
     image.loadFromData(QByteArray::fromBase64(base64.toLocal8Bit()));
@@ -208,8 +207,8 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, int audioTimes, QStrin
     }
 
     // 下发文件 1
-    qDebug() << "\n************************************************************************************************************************";
-    qDebug() << "************************************************ sendFile " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
+    // qDebug() << "\n************************************************************************************************************************";
+    // qDebug() << "************************************************ sendFile " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
     int res = m_traffic->sendFile((m_illegalPicPath + ILLEGAL_PIC_NAME).toLocal8Bit(),
                                   QString(ILLEGAL_PIC_NAME).toLocal8Bit());
     //qDebug() << "********** sendFile " + QDateTime::currentDateTime().toString("出： yyyyMMdd hh:mm:ss.zzz");
@@ -225,11 +224,14 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, int audioTimes, QStrin
     //                     .arg(ILLEGAL_PIC_NAME).toLocal8Bit().data();
     char* program = QString(PROGRAM3)
                         .arg(fontSize)
-                        .arg(audioTimes)
                         .arg(content)
+                        .arg(audioTimes)
+                        .arg(voiceContent)
                         .arg(audioSwitch)
                         .arg(audiovolume)
                         .arg(ILLEGAL_PIC_NAME).toLocal8Bit().data();
+    qDebug() << program;
+
     //qDebug() << "\n************************************************************************************************************************";
     //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
     res = m_traffic->sendPlayList(1, program);

@@ -90,13 +90,15 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
     QJsonObject jsonBack;
     QString msg;
     QJsonValue FontSizeJV = json.value("FontSize");         // 字号
-    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
     QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue AudioContentJV = json.value("AudioContent"); // 音频内容
     QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
     QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
     int FontSize = FontSizeJV.toInt();
-    int AudioTimes = AudioTimesJV.toInt();
     QString Content = ContentJV.toString();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString AudioContent = AudioContentJV.toString();
     int AudioSwitch = AudioSwitchJV.toInt();
     int Audiovolume = AudiovolumeJV.toInt();
 
@@ -108,21 +110,28 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
         jsonBack["code"] = -1;
     }
 
-    // 音频次数 合法性
-    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
-        msg += "error2 AudioTimes not int or AudioTimes <= 0;";
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error2 Content not string;";
         jsonBack["code"] = -1;
     }
 
-    // 内容 合法性
-    if(!ContentJV.isString()){
-        msg += "error3 Content not string;";
+    // 音频次数 合法性
+    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
+        msg += "error3 AudioTimes not int or AudioTimes <= 0;";
         jsonBack["code"] = -1;
     }
+
+    // 音频内容 合法性
+    if(!AudioContentJV.isString()){
+        msg += "error4 AudioContent not string;";
+        jsonBack["code"] = -1;
+    }
+
 
     // 音频开关 合法性
     if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
-        msg += "error4 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        msg += "error5 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
         jsonBack["code"] = -1;
     }
 
@@ -134,7 +143,7 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
-        emit this->signalPlayProgram1(FontSize, AudioTimes, Content, AudioSwitch, Audiovolume);
+        emit this->signalPlayProgram1(FontSize, Content, AudioTimes, AudioContent, AudioSwitch, Audiovolume);
     }
 
     return QJsonDocument(jsonBack);
@@ -169,17 +178,20 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram3(QJsonObject &json)
 {
     QJsonObject jsonBack;
     QString msg;
+
     QJsonValue FontSizeJV = json.value("FontSize");         // 字号
-    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
     QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue AudioContentJV = json.value("AudioContent"); // 音频内容
     QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
     QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
-    QJsonValue imgJV = json.value("Img");                   // 图片
     int FontSize = FontSizeJV.toInt();
-    int AudioTimes = AudioTimesJV.toInt();
     QString Content = ContentJV.toString();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString AudioContent = AudioContentJV.toString();
     int AudioSwitch = AudioSwitchJV.toInt();
     int Audiovolume = AudiovolumeJV.toInt();
+    QJsonValue imgJV = json.value("Img");
     QString img = imgJV.toString();
 
     jsonBack.insert("code", 0);
@@ -214,14 +226,20 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram3(QJsonObject &json)
         jsonBack["code"] = -1;
     }
 
+    // 音频内容 合法性
+    if(!AudioContentJV.isString()){
+        msg += "error6 AudioContent not string;";
+        jsonBack["code"] = -1;
+    }
+
     if(!imgJV.isString()){
-        msg += "error3 Img not string;";
+        msg += "error7 Img not string;";
         jsonBack["code"] = -1;
     }
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
-        emit this->signalPlayProgram3(FontSize, AudioTimes, Content, AudioSwitch, Audiovolume, img);
+        emit this->signalPlayProgram3(FontSize, Content, AudioTimes, AudioContent, AudioSwitch, Audiovolume, img);
     }
 
     return QJsonDocument(jsonBack);
