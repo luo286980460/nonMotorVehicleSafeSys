@@ -21,11 +21,13 @@
 #define NOVA_PROGRAM_TEXT_AND_PIC   "http://%1/screenOn/TextAndPic"
 #define BACK_BLACK_FILE_NAME        "/backBlack.jpg"
 
-MyHttpServerWorker::MyHttpServerWorker(QObject *parent)
+MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QObject *parent)
     : QObject{parent}
-    , m_aPlayerIpPort("127.0.0.1:23334")
-    , m_novaScreenIpPort("127.0.0.1:23335")
+    , m_port(port)
+    , m_novaScreen(novaScreen)
 {
+    m_novaScreenIpPort = "127.0.0.1:" + QString::number(novaScreen);
+
     m_imgSavePath = QApplication::applicationDirPath() + IMG_SAVE_PATH;
     QDir imgPath(m_imgSavePath);
     if(!imgPath.exists()){
@@ -105,7 +107,7 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     }
 
     jsonData.insert("AudioSwitch", 1);
-    jsonData.insert("Audiovolume", 1);
+    jsonData.insert("Audiovolume", 9);
 
     jsonData.insert("Img", img2base64(imgCar));
 
@@ -189,7 +191,7 @@ void MyHttpServerWorker::sendToBackServer(QJsonObject &json)
 
 void MyHttpServerWorker::slotStart()
 {
-    qDebug() << "***********************************************";
+    //qDebug() << "***********************************************";
     m_manager = new QNetworkAccessManager;
 
     HV_MEMCHECK;

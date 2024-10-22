@@ -270,6 +270,7 @@ Makefile: ../../nonMotorVehicleSafeSys.pro ../../../../Qt/5.15.2/mingw81_64/mksp
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/resources.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/moc.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/win32/opengl.prf \
+		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/uic.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/qmake_use.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/file_copies.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/testcase_targets.prf \
@@ -277,7 +278,9 @@ Makefile: ../../nonMotorVehicleSafeSys.pro ../../../../Qt/5.15.2/mingw81_64/mksp
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/lex.prf \
 		../../nonMotorVehicleSafeSys.pro \
+		../../../../Qt/5.15.2/mingw81_64/lib/Qt5Widgets.prl \
 		../../../../Qt/5.15.2/mingw81_64/lib/Qt5Gui.prl \
+		../../../../Qt/5.15.2/mingw81_64/lib/Qt5SerialPort.prl \
 		../../../../Qt/5.15.2/mingw81_64/lib/Qt5Core.prl \
 		../../../../Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf
 	$(QMAKE) -o Makefile ..\..\nonMotorVehicleSafeSys.pro -spec win32-g++ "CONFIG+=qtquickcompiler"
@@ -481,6 +484,7 @@ Makefile: ../../nonMotorVehicleSafeSys.pro ../../../../Qt/5.15.2/mingw81_64/mksp
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/resources.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/moc.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/win32/opengl.prf:
+../../../../Qt/5.15.2/mingw81_64/mkspecs/features/uic.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/qmake_use.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/file_copies.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/testcase_targets.prf:
@@ -488,7 +492,9 @@ Makefile: ../../nonMotorVehicleSafeSys.pro ../../../../Qt/5.15.2/mingw81_64/mksp
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/yacc.prf:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/lex.prf:
 ../../nonMotorVehicleSafeSys.pro:
+../../../../Qt/5.15.2/mingw81_64/lib/Qt5Widgets.prl:
 ../../../../Qt/5.15.2/mingw81_64/lib/Qt5Gui.prl:
+../../../../Qt/5.15.2/mingw81_64/lib/Qt5SerialPort.prl:
 ../../../../Qt/5.15.2/mingw81_64/lib/Qt5Core.prl:
 ../../../../Qt/5.15.2/mingw81_64/mkspecs/features/build_pass.prf:
 qmake: FORCE

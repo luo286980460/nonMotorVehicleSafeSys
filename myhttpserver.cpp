@@ -1,10 +1,10 @@
 #include "myhttpserver.h"
 #include "myhttpserverworker.h"
 
-MyHttpServer::MyHttpServer(QObject *parent)
+MyHttpServer::MyHttpServer(int port, int novaScreen, QObject *parent)
     : QObject{parent}
 {
-    m_work = new MyHttpServerWorker;
+    m_work = new MyHttpServerWorker(port, novaScreen);
 
     m_work->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_work, &QObject::deleteLater);

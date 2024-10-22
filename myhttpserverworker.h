@@ -18,7 +18,7 @@ class MyHttpServerWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyHttpServerWorker(QObject *parent = nullptr);
+    explicit MyHttpServerWorker(int port, int novaScreen, QObject *parent = nullptr);
     ~MyHttpServerWorker();
 
 private:
@@ -37,7 +37,8 @@ public slots:
     void post(QString url, QByteArray data);
 
 private:
-    int m_port = 23333;
+    int m_port;
+    int m_novaScreen;
     hv::HttpService m_router;
     hv::HttpServer m_server;
     QString m_imgSavePath;
