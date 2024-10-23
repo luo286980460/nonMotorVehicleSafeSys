@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QTimer>
 #include <QNetworkAccessManager>
+#include <QUdpSocket>
 
 typedef struct{
     QString BDGGA1;         // UTC时间：hhmmss.ss——000000.00~235959.99
@@ -35,6 +36,7 @@ private:
     bool getFirstData(QByteArray& data, QByteArray& first);
     void unPackBDGGA(QString BDGGA);
     void post(QString url, QByteArray data);
+    void initUdp();
 
 public slots:
     void slotUnPackData();
@@ -49,6 +51,9 @@ private:
     QTimer* m_timer;
     QNetworkAccessManager* m_manager;    // 网络请求管理
     QString m_GgpsUrl;
+    QUdpSocket* m_udp;
+    QString m_temperature;
+    QString m_humidity;
 };
 
 #endif // GPS_H

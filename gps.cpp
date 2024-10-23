@@ -12,6 +12,7 @@ GPS::GPS(QString GpsPortName, QString GpsUrl, QObject *parent)
     m_manager = new QNetworkAccessManager;
     init(GpsPortName);
     initTimer();
+    initUdp();
 }
 
 void GPS::initTimer()
@@ -40,6 +41,8 @@ void GPS::initTimer()
             if(m_BDGGA.size() == 14){
                 jsonObj.insert(m_BDGGA.at(2) == "N" ? "北纬" : "南纬", m_BDGGA.at(1));
                 jsonObj.insert(m_BDGGA.at(4) == "E" ? "东经" : "西经", m_BDGGA.at(3));
+                jsonObj.insert("温度", m_temperature);
+                jsonObj.insert("湿度", m_humidity);
                 post(m_GgpsUrl, QJsonDocument(jsonObj).toJson());
             }
 
@@ -113,6 +116,26 @@ void GPS::post(QString url, QByteArray data)
 
     // 发送请求
     m_manager->post(request, data);
+}
+
+void GPS::initUdp()
+{
+    m_udp = new QUdpSocket;
+    connect(m_udp, &QUdpSocket::readyRead, this, [this]{
+        QByteArray ba;
+        if(m_udp->hasPendingDatagrams()){
+            ba.resize(m_udp->pendingDatagramSize());
+            m_udp->readDatagram(ba.data(), ba.size());
+            m_temperature = QString(ba).split(";").at(0);
+            m_humidity = QString(ba).split(";").at(1);
+
+            // qDebug() << "温度：" + m_temperature;
+            // qDebug() << "湿度：" + m_humidity;
+        }
+
+    });
+    m_udp->bind(QHostAddress::Any, 23336);
+    m_udp->open(QIODevice::ReadWrite);
 }
 
 void GPS::slotUnPackData()
