@@ -21,10 +21,12 @@
 #define NOVA_PROGRAM_TEXT_AND_PIC   "http://%1/screenOn/TextAndPic"
 #define BACK_BLACK_FILE_NAME        "/backBlack.jpg"
 
-MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QObject *parent)
+MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QObject *parent)
     : QObject{parent}
     , m_port(port)
     , m_novaScreen(novaScreen)
+    , m_face2BackUrl(face2BackUrl)
+    , m_face2BoxUrl(face2BoxUrl)
 {
     m_novaScreenIpPort = "127.0.0.1:" + QString::number(novaScreen);
 
@@ -44,6 +46,15 @@ MyHttpServerWorker::~MyHttpServerWorker()
 QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
 {
     qDebug() << QDateTime::currentDateTime().toString("******************************************************* ： yyyyMMdd hh:mm:ss.zzz");
+
+    int fontSize = 30;
+    QString content;
+    int audioTimes = 1;
+    QString voiceContent;
+    int audioSwitch = 1;
+    int audiovolume = 9;
+    QString base64;
+
     QJsonObject break_rule_info = json.value("break_rule_info").toObject();
     QString b64StrBackImg = break_rule_info.value("img").toString();
     QImage imgBack = QImage::fromData(QByteArray::fromBase64(b64StrBackImg.toLocal8Bit()));
@@ -77,53 +88,63 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
 
     QImage imgCar = imgBack.copy(x, y, height, height);
 
-    // 打包数据
-    QJsonObject jsonData;
+    // // 打包数据
+    // QJsonObject jsonData;
 
-    jsonData.insert("FontSize", 32);
-    jsonData.insert("AudioTimes", 1);
+    // jsonData.insert("FontSize", 32);
+    // jsonData.insert("AudioTimes", 1);
 
     switch(illegalAct){
     case withoutHelmet:
-        jsonData.insert("Content", "请戴好头盔");
-        jsonData.insert("AudioContent", "请戴好头盔");
+        // jsonData.insert("Content", "请戴好头盔");
+        // jsonData.insert("AudioContent", "请戴好头盔");
+        content = "请戴好头盔";
+        voiceContent = "请戴好头盔";
         break;
     case manned:
-        jsonData.insert("Content", "请不要违法载人");
-        jsonData.insert("AudioContent", "请不要违法载人");
+        // jsonData.insert("Content", "请不要违法载人");
+        // jsonData.insert("AudioContent", "请不要违法载人");
+        content = "请不要违法载人";
+        voiceContent = "请不要违法载人";
         break;
     case retrograde:
-        jsonData.insert("Content", "请不要逆行");
-        jsonData.insert("AudioContent", "请不要逆行");
+        // jsonData.insert("Content", "请不要逆行");
+        // jsonData.insert("AudioContent", "请不要逆行");
+        content = "请不要逆行";
+        voiceContent = "请不要逆行";
         break;
     case jiZhanFei:
-        jsonData.insert("Content", "请勿违法占道");
-        jsonData.insert("AudioContent", "请勿违法占道");
+        // jsonData.insert("Content", "请勿违法占道");
+        // jsonData.insert("AudioContent", "请勿违法占道");
+        content = "请勿违法占道";
+        voiceContent = "请勿违法占道";
         break;
     default:
-        jsonData.insert("Content", "请安全驾驶");
-        jsonData.insert("AudioContent", "请安全驾驶");
+        // jsonData.insert("Content", "请安全驾驶");
+        // jsonData.insert("AudioContent", "请安全驾驶");
+        content = "请安全驾驶";
+        voiceContent = "请安全驾驶";
         break;
     }
 
-    jsonData.insert("AudioSwitch", 1);
-    jsonData.insert("Audiovolume", 9);
+    // jsonData.insert("AudioSwitch", 1);
+    // jsonData.insert("Audiovolume", 9);
 
-    jsonData.insert("Img", img2base64(imgCar));
+    // jsonData.insert("Img", img2base64(imgCar));
+    base64 = img2base64(imgCar);
 
-    QByteArray data = QJsonDocument(jsonData).toJson();
+    //QByteArray data = QJsonDocument(jsonData).toJson();
 
     // 上屏
-    emit signalPost(QString(NOVA_PROGRAM_TEXT_AND_PIC).arg(m_novaScreenIpPort), data);
+    // emit signalPost(QString(NOVA_PROGRAM_TEXT_AND_PIC).arg(m_novaScreenIpPort), data);
 
-    // 语音
-    // 根据违法信息来进行语音提示
-    //  emit signalPost();
+    // fontSize content audioTimes voiceContent audioSwitch audiovolume base64);
+    emit signalPlayProgram3(fontSize, content, audioTimes, voiceContent, audioSwitch, audiovolume, base64);
 
     // 上传给黄杨
     sendToBackServer(json);
 
-    return QJsonDocument(jsonData);
+    return QJsonDocument(json);
 }
 
 void MyHttpServerWorker::post(QString url, QByteArray data)
@@ -183,6 +204,165 @@ QString MyHttpServerWorker::img2base64(QImage image)
     QByteArray ba2 = ba.toBase64();
     return QString::fromLatin1(ba2);
 }
+QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
+{
+    QJsonObject jsonBack;
+    QString msg;
+    QJsonValue FontSizeJV = json.value("FontSize");         // 字号
+    QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue AudioContentJV = json.value("AudioContent"); // 音频内容
+    QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
+    QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
+    int FontSize = FontSizeJV.toInt();
+    QString Content = ContentJV.toString();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString AudioContent = AudioContentJV.toString();
+    int AudioSwitch = AudioSwitchJV.toInt();
+    int Audiovolume = AudiovolumeJV.toInt();
+
+    jsonBack.insert("code", 0);
+
+    // 字号 合法性
+    if(!FontSizeJV.isDouble() || FontSize <= 0){
+        msg += "error1 FontSize not int or FontSize <= 0;";
+        jsonBack["code"] = -1;
+    }
+
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error2 Content not string;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频次数 合法性
+    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
+        msg += "error3 AudioTimes not int or AudioTimes <= 0;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频内容 合法性
+    if(!AudioContentJV.isString()){
+        msg += "error4 AudioContent not string;";
+        jsonBack["code"] = -1;
+    }
+
+
+    // 音频开关 合法性
+    if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
+        msg += "error5 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频音量 合法性
+    if(!AudiovolumeJV.isDouble() || Audiovolume < 1 && Audiovolume > 9){
+        msg += "error5 Audiovolume not int or 1~9;";
+        jsonBack["code"] = -1;
+    }
+
+    jsonBack.insert("msg", msg);
+    if(jsonBack.value("code").toInt() == 0){
+        emit this->signalPlayProgram1(FontSize, Content, AudioTimes, AudioContent, AudioSwitch, Audiovolume);
+    }
+
+    return QJsonDocument(jsonBack);
+}
+
+QJsonDocument MyHttpServerWorker::unpackPlayProgram2(QJsonObject &json)
+{
+    QJsonObject jsonBack;
+    QJsonValue imgJV = json.value("Img");
+    QString img;
+    QString msg;
+
+    jsonBack.insert("code", 0);
+
+    if(!imgJV.isString()){
+        msg += "error1 Img not string;";
+        jsonBack["code"] = -1;
+    }else{
+        img = imgJV.toString();
+    }
+
+    jsonBack.insert("msg", msg);
+    if(jsonBack.value("code").toInt() == 0){
+        //qDebug() << "this->signalPlayProgram2(msg);";
+        emit this->signalPlayProgram2(img);
+    }
+
+    return QJsonDocument(jsonBack);
+}
+
+QJsonDocument MyHttpServerWorker::unpackPlayProgram3(QJsonObject &json)
+{
+    QJsonObject jsonBack;
+    QString msg;
+
+    QJsonValue FontSizeJV = json.value("FontSize");         // 字号
+    QJsonValue ContentJV = json.value("Content");           // 内容
+    QJsonValue AudioTimesJV = json.value("AudioTimes");     // 音频次数
+    QJsonValue AudioContentJV = json.value("AudioContent"); // 音频内容
+    QJsonValue AudioSwitchJV = json.value("AudioSwitch");   // 音频开关
+    QJsonValue AudiovolumeJV = json.value("Audiovolume");   // 音频音量
+    int FontSize = FontSizeJV.toInt();
+    QString Content = ContentJV.toString();
+    int AudioTimes = AudioTimesJV.toInt();
+    QString AudioContent = AudioContentJV.toString();
+    int AudioSwitch = AudioSwitchJV.toInt();
+    int Audiovolume = AudiovolumeJV.toInt();
+    QJsonValue imgJV = json.value("Img");
+    QString img = imgJV.toString();
+
+    jsonBack.insert("code", 0);
+
+    // 字号 合法性
+    if(!FontSizeJV.isDouble() || FontSize <= 0){
+        msg += "error1 FontSize not int or FontSize <= 0;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频次数 合法性
+    if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
+        msg += "error2 AudioTimes not int or AudioTimes <= 0;";
+        jsonBack["code"] = -1;
+    }
+
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error3 Content not string;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频开关 合法性
+    if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
+        msg += "error4 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频音量 合法性
+    if(!AudiovolumeJV.isDouble() || Audiovolume < 1 && Audiovolume > 9){
+        msg += "error5 Audiovolume not int or 1~9;";
+        jsonBack["code"] = -1;
+    }
+
+    // 音频内容 合法性
+    if(!AudioContentJV.isString()){
+        msg += "error6 AudioContent not string;";
+        jsonBack["code"] = -1;
+    }
+
+    if(!imgJV.isString()){
+        msg += "error7 Img not string;";
+        jsonBack["code"] = -1;
+    }
+
+    jsonBack.insert("msg", msg);
+    if(jsonBack.value("code").toInt() == 0){
+        emit this->signalPlayProgram3(FontSize, Content, AudioTimes, AudioContent, AudioSwitch, Audiovolume, img);
+    }
+
+    return QJsonDocument(jsonBack);
+}
 
 void MyHttpServerWorker::sendToBackServer(QJsonObject &json)
 {
@@ -218,7 +398,47 @@ void MyHttpServerWorker::slotStart()
 
         //qDebug() << jsonDoc;
 
+
+        signalPost(this->m_face2BackUrl, jsonDoc.toJson());     // 发送给后台
+
         return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+    // 屏幕显示文字
+    m_router.POST("/screenOn/Text", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+
+        //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(unpackPlayProgram1(json).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+    // 屏幕显示图片
+    m_router.POST("/screenOn/Pic", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+
+        return ctx->send(unpackPlayProgram2(json).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+    // 屏幕显示文字+图片
+    m_router.POST("/screenOn/TextAndPic", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+        return ctx->send(unpackPlayProgram3(json).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+    // 人脸信息上传
+    m_router.POST("/face/update", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
+
+        //qDebug() << jsonDoc;
+
+
+        signalPost(this->m_face2BoxUrl, jsonDoc.toJson());     // 发送给后台
+
+        return ctx->sendString("success");
     });
 
     m_router.POST("/echo", [](const HttpContextPtr& ctx) {
@@ -231,10 +451,10 @@ void MyHttpServerWorker::slotStart()
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"time", QDateTime::currentDateTime().toString("yyyy年MM月dd日 hh:mm:ss").toStdString()},
+                    {"time", "2024年10月25日"},
                     {"Name", "非机动车安全防治一体机"},
-                    {"Version", "0.1"},
-                    {"Msg", "测试版"}
+                    {"Version", "1.10"},
+                    {"Msg", "整合版,包含gps、温湿度、诺瓦屏，依赖一个STH30.py"}
                     };
         return resp->Json(ex3);
     });

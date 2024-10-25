@@ -12,7 +12,9 @@ SOURCES += \
         main.cpp \
         myhttpserver.cpp \
         myhttpserverworker.cpp \
-        mymain.cpp
+        mymain.cpp \
+        novacontroller.cpp \
+        novacontrollerworker.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -20,12 +22,20 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    NovaHeader.h \
     gps.h \
     myhttpserver.h \
     myhttpserverworker.h \
-    mymain.h
+    mymain.h \
+    novacontroller.h \
+    novacontrollerworker.h
 
 unix:!macx: LIBS += -L$$PWD/libs/ -lhv
 
 INCLUDEPATH += $$PWD/include/libhv
 DEPENDPATH += $$PWD/include/libhv
+
+unix:!macx: LIBS += -L$$PWD/libs/ -lNovaTraffic
+
+INCLUDEPATH += $$PWD/include/Nova
+DEPENDPATH += $$PWD/include/Nova

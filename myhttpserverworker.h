@@ -18,7 +18,7 @@ class MyHttpServerWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyHttpServerWorker(int port, int novaScreen, QObject *parent = nullptr);
+    explicit MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QObject *parent = nullptr);
     ~MyHttpServerWorker();
 
 private:
@@ -26,11 +26,19 @@ private:
     //void post(QString url, QByteArray& data);
     void postBack(QNetworkReply* reply);
     QString img2base64(QImage image);
+    QJsonDocument unpackPlayProgram1(QJsonObject& json);
+    QJsonDocument unpackPlayProgram2(QJsonObject& json);
+    QJsonDocument unpackPlayProgram3(QJsonObject& json);
 
     void sendToBackServer(QJsonObject& json);   // 发送给后台
 
 signals:
     void signalPost(QString url, QByteArray data);
+    void signalPlayProgram1(int fontSize, QString content, int audioTimes, QString voiceContent, int audioSwitch, int audiovolume);
+    void signalPlayProgram2(QString base64);
+    void signalPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent,
+                            int audioSwitch, int audiovolume , QString base64);
+
 
 public slots:
     void slotStart();
@@ -45,6 +53,8 @@ private:
     QNetworkAccessManager* m_manager;    // 网络请求管理
     QString m_aPlayerIpPort;
     QString m_novaScreenIpPort;
+    QString m_face2BackUrl;
+    QString m_face2BoxUrl;
 };
 
 #endif // MYHTTPSERVERWORKER_H

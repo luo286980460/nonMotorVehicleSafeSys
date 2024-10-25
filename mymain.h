@@ -4,6 +4,7 @@
 #include <QObject>
 
 class MyHttpServer;
+class NovaController;
 class GPS;
 
 class MyMain : public QObject
@@ -14,16 +15,21 @@ public:
 
 private:
     void loadIni();
-    void initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort);
+    void initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl);
+    void initNovaController(QString ip);
     void initGps(QString GpsPortName, QString GpsUrl);
 
 signals:
+    void signalPlayProgram1(int fontSize, QString content, int audioTimes, QString voiceContent, int audioSwitch, int audiovolume);
 
 public slots:
     void showMsg(QString msg);
 
 private:
-    MyHttpServer* myHttpServer;
+    MyHttpServer* m_myHttpServer
+        = nullptr;
+    NovaController* m_NovaController
+        = nullptr;
     GPS* m_GPS;
 };
 

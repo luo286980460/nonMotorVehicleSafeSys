@@ -1,0 +1,13 @@
+debug/gps.o
+debug/main.o
+debug/myhttpserver.o
+debug/myhttpserverworker.o
+debug/mymain.o
+debug/novacontroller.o
+debug/novacontrollerworker.o
+debug/moc_gps.o
+debug/moc_myhttpserver.o
+debug/moc_myhttpserverworker.o
+debug/moc_mymain.o
+debug/moc_novacontroller.o
+debug/moc_novacontrollerworker.o
