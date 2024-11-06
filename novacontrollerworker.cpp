@@ -52,6 +52,15 @@ void NovaControllerWorker::playProgram(int id)
     }
 }
 
+void NovaControllerWorker::PlayProgramDefault()
+{
+    char* program = QString(PROGRAM_DEF).arg(ILLEGAL_PIC_NAME).toLocal8Bit().data();
+    //qDebug() << "\n************************************************************************************************************************";
+    //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
+    m_traffic->sendPlayList(1, program);
+    m_playFlag = 0;
+}
+
 // void NovaControllerWorker::playProgram1()
 // {
 //     // 下发文件
@@ -108,7 +117,7 @@ void NovaControllerWorker::slotInit()
     m_traffic = new NovaTraffic(m_ip.toLocal8Bit(), m_port);
 
     // 播放节目1 默认节目
-    playProgram(1);
+    PlayProgramDefault();
 
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
@@ -124,14 +133,14 @@ void NovaControllerWorker::slotInit()
         }else if(m_playFlag == m_ProgramInterval){  // 可发送节目
             if(m_Back2DefaultProgramTimeFlag == m_Back2DefaultProgramTime){
                 // 播放节目1 默认节目
-                playProgram(2);
+                PlayProgramDefault();
                 m_Back2DefaultProgramTimeFlag++;
             }else if(m_Back2DefaultProgramTimeFlag < m_Back2DefaultProgramTime){    // 等待发送节目
                 m_Back2DefaultProgramTimeFlag++;
             }
         }
     });
-    //m_timer->start();
+    m_timer->start();
 }
 
 void NovaControllerWorker::slotIllegalAct()
@@ -162,6 +171,8 @@ void NovaControllerWorker::slotPlayProgram1(int fontSize, QString content, int a
 
     //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("出： yyyyMMdd hh:mm:ss.zzz");
     //qDebug() << "************************************************************************************************************************\n";
+    m_playFlag = 0;
+    m_Back2DefaultProgramTimeFlag = 0;
 }
 
 void NovaControllerWorker::slotPlayProgram2(QString base64)
@@ -191,7 +202,8 @@ void NovaControllerWorker::slotPlayProgram2(QString base64)
     res = m_traffic->sendPlayList(1, program);
     //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("出： yyyyMMdd hh:mm:ss.zzz");
     //qDebug() << "************************************************************************************************************************\n";
-
+    m_playFlag = 0;
+    m_Back2DefaultProgramTimeFlag = 0;
 }
 
 void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent
@@ -238,5 +250,6 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int a
     qDebug() << "************************************************ sendPlayList " + QDateTime::currentDateTime().toString("出： yyyyMMdd hh:mm:ss.zzz");
     qDebug() << "************************************************************************************************************************\n";
 
-
+    m_playFlag = 0;
+    m_Back2DefaultProgramTimeFlag = 0;
 }

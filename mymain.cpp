@@ -25,6 +25,8 @@ void MyMain::loadIni()
     QString Face2BackUrl;
     QString Face2BoxUrl;
     QString NovaScreenIp;
+    QString Place;
+    int BackToDefTime;
 
     QString iniPath = QCoreApplication::applicationDirPath() + INIFILE_PORT;
     if(!QFileInfo::exists(iniPath)){
@@ -33,18 +35,22 @@ void MyMain::loadIni()
     }
 
     QSettings settings(iniPath, QSettings::IniFormat);
+    settings.setIniCodec("utf-8");
     NonMotorVehicleSafeSysPort = settings.value("Port/NonMotorVehicleSafeSysPort", -1).toInt();
     NovaScreenServerPort = settings.value("Port/NovaScreenServerPort", -1).toInt();
     GpsPortName = settings.value("Url/GpsPortName", "-1").toString();
     GpsUrl = settings.value("Url/GpsUrl", "-1").toString();
     Face2BackUrl = settings.value("Url/Face2BackUrl", "-1").toString();
-    NovaScreenIp = settings.value("Ip/NovaScreenIp", "-1").toString();
+    Face2BoxUrl = settings.value("Url/Face2BoxUrl", "-1").toString();
+    NovaScreenIp = settings.value("Nova/NovaScreenIp", "-1").toString();
+    BackToDefTime = settings.value("Nova/BackToDefTime", -1).toInt();
+    Place = settings.value("Url/Place", "-1").toString();
 
     if(NonMotorVehicleSafeSysPort < 1 || NovaScreenServerPort < 1  || Face2BackUrl == "-1"  || Face2BoxUrl == "-1"){
         showMsg("****** cfg.ini NonMotorVehicleSafeSysPort < 1 || NovaScreenServerPort < 1  || Face2BackUrl == -1  || Face2BoxUrl == -1******");
         return;
     }else{
-        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl);
+        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place);
     }
 
     if(GpsPortName == "-1" || GpsUrl == "-1"){
@@ -54,11 +60,11 @@ void MyMain::loadIni()
         initGps(GpsPortName, GpsUrl);
     }
 
-    if(NovaScreenIp == "-1"){
-        showMsg("****** cfg.ini NovaScreenIp == -1");
+    if(NovaScreenIp == "-1" || BackToDefTime == -1){
+        showMsg("****** cfg.ini NovaScreenIp == -1 || BackToDefTime == -1");
         return;
     }else{
-        initNovaController(NovaScreenIp);
+        initNovaController(NovaScreenIp, BackToDefTime);
     }
 
     if(m_myHttpServer && m_NovaController){
@@ -68,16 +74,16 @@ void MyMain::loadIni()
     }
 }
 
-void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl)
+void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place)
 {
-    m_myHttpServer = new MyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl);
+    m_myHttpServer = new MyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place);
 
     m_myHttpServer->start();
 }
 
-void MyMain::initNovaController(QString ip)
+void MyMain::initNovaController(QString ip, int backToDefTime)
 {
-    m_NovaController = new NovaController(ip, 5);
+    m_NovaController = new NovaController(ip, backToDefTime);
     m_NovaController->start();
 }
 void MyMain::initGps(QString GpsPortName, QString GpsUrl)

@@ -15,6 +15,7 @@ public:
 
 private:
     void playProgram(int id);           // 播放节目
+    void PlayProgramDefault();
 
     /*
  * 节目1 文字节目

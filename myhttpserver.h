@@ -10,7 +10,7 @@ class MyHttpServer : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyHttpServer(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QObject *parent = nullptr);
+    explicit MyHttpServer(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QObject *parent = nullptr);
     ~MyHttpServer();
 
     void start();       //开始线程

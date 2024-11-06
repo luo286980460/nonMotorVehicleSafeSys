@@ -59,4 +59,13 @@ info=160,240"
 
 //txtext3=161,1,10,10,微软雅黑,1,0,2,2,0,0,ff0000,00000000,1,1,1410065390,1,请戴好头盔,1,0,0,1,3,5
 
+#define PROGRAM_DEF "\
+[all]\r\n\
+items=1\r\n\
+[item1]\r\n\
+param=100,1,1,1,0,5,1\r\n\
+img1=0,0,default.png,0,160,240\r\n\
+imgparam1=100\r\n\
+info=160,240"
+
 #endif // NOVAHEADER_H

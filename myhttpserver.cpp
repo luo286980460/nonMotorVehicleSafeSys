@@ -1,10 +1,10 @@
 #include "myhttpserver.h"
 #include "myhttpserverworker.h"
 
-MyHttpServer::MyHttpServer(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QObject *parent)
+MyHttpServer::MyHttpServer(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QObject *parent)
     : QObject{parent}
 {
-    m_work = new MyHttpServerWorker(port, novaScreen, face2BackUrl, face2BoxUrl);
+    m_work = new MyHttpServerWorker(port, novaScreen, face2BackUrl, face2BoxUrl, Place);
 
     m_work->moveToThread(&m_workerThread);
     connect(&m_workerThread, &QThread::finished, m_work, &QObject::deleteLater);
