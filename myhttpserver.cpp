@@ -12,6 +12,9 @@ MyHttpServer::MyHttpServer(int port, int novaScreen, QString face2BackUrl, QStri
     connect(m_work, &MyHttpServerWorker::signalPlayProgram1, this, &MyHttpServer::signalPlayProgram1);
     connect(m_work, &MyHttpServerWorker::signalPlayProgram2, this, &MyHttpServer::signalPlayProgram2);
     connect(m_work, &MyHttpServerWorker::signalPlayProgram3, this, &MyHttpServer::signalPlayProgram3);
+    connect(m_work, &MyHttpServerWorker::signalSetDefaultTxt, this, &MyHttpServer::signalSetDefaultTxt);
+    connect(m_work, &MyHttpServerWorker::signalSetDefaultPic, this, &MyHttpServer::signalSetDefaultPic);
+    connect(m_work, &MyHttpServerWorker::signalSetCurrentDefaultProgram, this, &MyHttpServer::signalSetCurrentDefaultProgram);
 }
 
 MyHttpServer::~MyHttpServer()

@@ -71,6 +71,9 @@ void MyMain::loadIni()
         connect(m_myHttpServer, &MyHttpServer::signalPlayProgram1, m_NovaController, &NovaController::signalPlayProgram1);
         connect(m_myHttpServer, &MyHttpServer::signalPlayProgram2, m_NovaController, &NovaController::signalPlayProgram2);
         connect(m_myHttpServer, &MyHttpServer::signalPlayProgram3, m_NovaController, &NovaController::signalPlayProgram3);
+        connect(m_myHttpServer, &MyHttpServer::signalSetDefaultTxt, m_NovaController, &NovaController::signalSetDefaultTxt);
+        connect(m_myHttpServer, &MyHttpServer::signalSetDefaultPic, m_NovaController, &NovaController::signalSetDefaultPic);
+        connect(m_myHttpServer, &MyHttpServer::signalSetCurrentDefaultProgram, m_NovaController, &NovaController::signalSetCurrentDefaultProgram);
     }
 }
 

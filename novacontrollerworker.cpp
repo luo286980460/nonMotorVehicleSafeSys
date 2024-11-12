@@ -9,6 +9,7 @@
 #include "NovaHeader.h"
 
 #define ILLEGAL_PIC_NAME "/illegal.jpg"
+#define DEFAULT_PIC_NAME "/default.png"
 
 NovaControllerWorker::NovaControllerWorker(QString ip, int Back2DefaultProgram, QObject *parent)
     : QObject{parent}
@@ -24,39 +25,56 @@ NovaControllerWorker::NovaControllerWorker(QString ip, int Back2DefaultProgram, 
     }
 }
 
-void NovaControllerWorker::playProgram(int id)
+void NovaControllerWorker::PlayProgramDefault()
 {
-    //qDebug() << "playProgram";
-    if(m_traffic && m_timer){
-
-        qDebug() << QString("播放节目 %1 ").arg(id);
-        //emit showMsg(QString("播放节目 %1 ").arg(id));
-
-        switch (id) {
-        case 1:
-            //playProgram1();
-            break;
-        case 2:
-            //playProgram2();
-            break;
-        case 3:
-            //playProgram3();
-            break;
-        default:
-            break;
-        }
-        if(id != 1){
-            m_Back2DefaultProgramTimeFlag = 0;
-        }
-        m_playFlag = 0;
+    switch (m_currentDef) {
+    case 1:
+        PlayProgramDefaultTxt();
+        break;
+    case 2:
+        PlayProgramDefaultPic();
+        break;
+    case 3:
+        PlayProgramDefaultTxtAndPic();
+        break;
+    default:
+        m_currentDef = 3;
+        PlayProgramDefaultTxtAndPic();
+        break;
     }
 }
 
-void NovaControllerWorker::PlayProgramDefault()
+void NovaControllerWorker::PlayProgramDefaultTxt()
 {
-    char* program = QString(PROGRAM_DEF).arg(ILLEGAL_PIC_NAME).toLocal8Bit().data();
-    //qDebug() << "\n************************************************************************************************************************";
-    //qDebug() << "********** sendPlayList " + QDateTime::currentDateTime().toString("进： yyyyMMdd hh:mm:ss.zzz");
+    char* program = QString(PROGRAM1)
+                        .arg(30)
+                        .arg(m_defaultTxt)
+                        .arg(1)
+                        .arg(" ")
+                        .arg(0)
+                        .arg(1)
+                        .toLocal8Bit().data();
+    m_traffic->sendPlayList(1, program);
+    m_playFlag = 0;
+}
+
+void NovaControllerWorker::PlayProgramDefaultPic()
+{
+    char* program = QString(PROGRAM2).arg(DEFAULT_PIC_NAME).toLocal8Bit().data();
+    m_traffic->sendPlayList(1, program);
+    m_playFlag = 0;
+}
+
+void NovaControllerWorker::PlayProgramDefaultTxtAndPic()
+{
+    char* program = QString(PROGRAM3)
+                        .arg(30)
+                        .arg(m_defaultTxt)
+                        .arg(1)
+                        .arg(" ")
+                        .arg(0)
+                        .arg(1)
+                        .arg(DEFAULT_PIC_NAME).toLocal8Bit().data();
     m_traffic->sendPlayList(1, program);
     m_playFlag = 0;
 }
@@ -141,15 +159,6 @@ void NovaControllerWorker::slotInit()
         }
     });
     m_timer->start();
-}
-
-void NovaControllerWorker::slotIllegalAct()
-{
-    //qDebug() << QString("大屏违法:%1").arg(m_ip);
-    if(m_traffic){
-        // 播放节目2        临时
-        playProgram(2);
-    }
 }
 
 void NovaControllerWorker::slotPlayProgram1(int fontSize, QString content, int audioTimes
@@ -252,4 +261,35 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int a
 
     m_playFlag = 0;
     m_Back2DefaultProgramTimeFlag = 0;
+}
+
+void NovaControllerWorker::slotSetDefaultTxt(QString content)
+{
+    m_defaultTxt = content;
+}
+
+void NovaControllerWorker::slotSetDefaultPic(QString base64)
+{
+    QImage image;
+    image.loadFromData(QByteArray::fromBase64(base64.toLocal8Bit()));
+
+    // 保存图片
+    if(!base64.isEmpty()){
+        image.save(m_illegalPicPath + DEFAULT_PIC_NAME, "jpg", m_imgSaveLevel);
+        qDebug() << m_illegalPicPath + DEFAULT_PIC_NAME;
+    }
+
+    m_traffic->sendFile((m_illegalPicPath + DEFAULT_PIC_NAME).toLocal8Bit(),
+                        QString(DEFAULT_PIC_NAME).toLocal8Bit());
+
+}
+
+void NovaControllerWorker::slotSetCurrentDefaultProgram(int currentProgram)
+{
+    if(currentProgram > 0 && currentProgram < 4){
+        m_currentDef = currentProgram;
+    }else{
+        m_currentDef = 3;
+    }
+    PlayProgramDefault();
 }

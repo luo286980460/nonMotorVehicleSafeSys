@@ -26,8 +26,8 @@ private:
     //void post(QString url, QByteArray& data);
     void postBack(QNetworkReply* reply);
     QString img2base64(QImage image);
-    QJsonDocument unpackPlayProgram1(QJsonObject& json);
-    QJsonDocument unpackPlayProgram2(QJsonObject& json);
+    QJsonDocument unpackPlayProgram1(QJsonObject& json, int type);  // type:1-播放节目  type:2-修改默认节目数据
+    QJsonDocument unpackPlayProgram2(QJsonObject& json, int type);
     QJsonDocument unpackPlayProgram3(QJsonObject& json);
 
     void sendToBackServer(QJsonObject& json);   // 发送给后台
@@ -38,6 +38,9 @@ signals:
     void signalPlayProgram2(QString base64);
     void signalPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent,
                             int audioSwitch, int audiovolume , QString base64);
+    void signalSetDefaultTxt(QString content);    // 设置默认节目的内容
+    void signalSetDefaultPic(QString base64);     // 设置默认节目的图片
+    void signalSetCurrentDefaultProgram(int currentProgram);    // 设置当前默认节目的图片编号
 
 
 public slots:

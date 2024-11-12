@@ -10,10 +10,12 @@ NovaController::NovaController(QString ip, int Back2DefaultProgram, QObject *par
 
     connect(m_work, &NovaControllerWorker::showMsg, this,&NovaController::showMsg);
     connect(this, &NovaController::signalInitWorker, m_work,&NovaControllerWorker::slotInit);
-    connect(this, &NovaController::signalIllegalAct, m_work,&NovaControllerWorker::slotIllegalAct);
     connect(this, &NovaController::signalPlayProgram1, m_work,&NovaControllerWorker::slotPlayProgram1);
     connect(this, &NovaController::signalPlayProgram2, m_work,&NovaControllerWorker::slotPlayProgram2);
     connect(this, &NovaController::signalPlayProgram3, m_work,&NovaControllerWorker::slotPlayProgram3);
+    connect(this, &NovaController::signalSetDefaultTxt, m_work,&NovaControllerWorker::slotSetDefaultTxt);
+    connect(this, &NovaController::signalSetDefaultPic, m_work,&NovaControllerWorker::slotSetDefaultPic);
+    connect(this, &NovaController::signalSetCurrentDefaultProgram, m_work,&NovaControllerWorker::slotSetCurrentDefaultProgram);
 }
 
 NovaController::~NovaController()

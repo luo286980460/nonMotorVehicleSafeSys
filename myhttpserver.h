@@ -22,6 +22,9 @@ signals:
     void signalPlayProgram2(QString base64);
     void signalPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent,
                             int audioSwitch, int audiovolume , QString base64);
+    void signalSetDefaultTxt(QString content);    // 设置默认节目的内容
+    void signalSetDefaultPic(QString base64);     // 设置默认节目的图片
+    void signalSetCurrentDefaultProgram(int currentProgram);    // 设置当前默认节目的图片编号
 
 
 private:

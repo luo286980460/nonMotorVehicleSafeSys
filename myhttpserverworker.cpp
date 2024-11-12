@@ -216,7 +216,7 @@ QString MyHttpServerWorker::img2base64(QImage image)
     QByteArray ba2 = ba.toBase64();
     return QString::fromLatin1(ba2);
 }
-QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
+QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json, int type)
 {
     QJsonObject jsonBack;
     QString msg;
@@ -235,15 +235,23 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
 
     jsonBack.insert("code", 0);
 
-    // 字号 合法性
-    if(!FontSizeJV.isDouble() || FontSize <= 0){
-        msg += "error1 FontSize not int or FontSize <= 0;";
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error1 Content not string;";
         jsonBack["code"] = -1;
     }
 
-    // 内容 合法性
-    if(!ContentJV.isString()){
-        msg += "error2 Content not string;";
+    if(type == 2){
+        jsonBack.insert("msg", msg);
+        if(jsonBack.value("code").toInt() == 0){
+            emit this->signalSetDefaultTxt(Content);
+        }
+        return QJsonDocument(jsonBack);
+    }
+
+    // 字号 合法性
+    if(!FontSizeJV.isDouble() || FontSize <= 0){
+        msg += "error2 FontSize not int or FontSize <= 0;";
         jsonBack["code"] = -1;
     }
 
@@ -280,11 +288,11 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json)
     return QJsonDocument(jsonBack);
 }
 
-QJsonDocument MyHttpServerWorker::unpackPlayProgram2(QJsonObject &json)
+QJsonDocument MyHttpServerWorker::unpackPlayProgram2(QJsonObject &json, int type)
 {
     QJsonObject jsonBack;
     QJsonValue imgJV = json.value("Img");
-    QString img;
+    QString img = imgJV.toString();
     QString msg;
 
     jsonBack.insert("code", 0);
@@ -292,14 +300,16 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram2(QJsonObject &json)
     if(!imgJV.isString()){
         msg += "error1 Img not string;";
         jsonBack["code"] = -1;
-    }else{
-        img = imgJV.toString();
     }
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
         //qDebug() << "this->signalPlayProgram2(msg);";
-        emit this->signalPlayProgram2(img);
+        if(type == 1){
+            emit this->signalPlayProgram2(img);
+        }else if(type == 2){
+            emit this->signalSetDefaultPic(img);     // 设置默认节目的图片
+        }
     }
 
     return QJsonDocument(jsonBack);
@@ -327,46 +337,49 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram3(QJsonObject &json)
 
     jsonBack.insert("code", 0);
 
+
+    // 内容 合法性
+    if(!ContentJV.isString()){
+        msg += "error1 Content not string;";
+        jsonBack["code"] = -1;
+    }
+
+    // 图片 合法性
+    if(!imgJV.isString()){
+        msg += "error2 Img not string;";
+        jsonBack["code"] = -1;
+    }
+
     // 字号 合法性
     if(!FontSizeJV.isDouble() || FontSize <= 0){
-        msg += "error1 FontSize not int or FontSize <= 0;";
+        msg += "error3 FontSize not int or FontSize <= 0;";
         jsonBack["code"] = -1;
     }
 
     // 音频次数 合法性
     if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
-        msg += "error2 AudioTimes not int or AudioTimes <= 0;";
-        jsonBack["code"] = -1;
-    }
-
-    // 内容 合法性
-    if(!ContentJV.isString()){
-        msg += "error3 Content not string;";
+        msg += "error4 AudioTimes not int or AudioTimes <= 0;";
         jsonBack["code"] = -1;
     }
 
     // 音频开关 合法性
     if(!AudioSwitchJV.isDouble() || AudioSwitch != 0 && AudioSwitch != 1){
-        msg += "error4 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
+        msg += "error5 AudioSwitch not int or AudioSwitch != 0 && AudioSwitch != 1;";
         jsonBack["code"] = -1;
     }
 
     // 音频音量 合法性
     if(!AudiovolumeJV.isDouble() || Audiovolume < 1 && Audiovolume > 9){
-        msg += "error5 Audiovolume not int or 1~9;";
+        msg += "error6 Audiovolume not int or 1~9;";
         jsonBack["code"] = -1;
     }
 
     // 音频内容 合法性
     if(!AudioContentJV.isString()){
-        msg += "error6 AudioContent not string;";
+        msg += "error7 AudioContent not string;";
         jsonBack["code"] = -1;
     }
 
-    if(!imgJV.isString()){
-        msg += "error7 Img not string;";
-        jsonBack["code"] = -1;
-    }
 
     jsonBack.insert("msg", msg);
     if(jsonBack.value("code").toInt() == 0){
@@ -451,7 +464,7 @@ void MyHttpServerWorker::slotStart()
         QJsonObject json = jsonDoc.object();
 
         //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
-        return ctx->send(unpackPlayProgram1(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(unpackPlayProgram1(json, 1).toJson().toStdString(), APPLICATION_JSON);
     });
 
     // 屏幕显示图片
@@ -459,7 +472,7 @@ void MyHttpServerWorker::slotStart()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
         QJsonObject json = jsonDoc.object();
 
-        return ctx->send(unpackPlayProgram2(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(unpackPlayProgram2(json, 1).toJson().toStdString(), APPLICATION_JSON);
     });
 
     // 屏幕显示文字+图片
@@ -486,15 +499,59 @@ void MyHttpServerWorker::slotStart()
         return ctx->send(ctx->body(), ctx->type());
     });
 
+    // 修改默认文字
+    m_router.POST("/screenSet/Text", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+
+        //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(unpackPlayProgram1(json, 2).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+    // 修改默认图片
+    m_router.POST("/screenSet/Pic", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+
+        //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(unpackPlayProgram2(json, 2).toJson().toStdString(), APPLICATION_JSON);
+    });
+
+
+
+    // 修改默认图片
+    m_router.POST("/screenSet/DefaultProgrameNumber", [this](const HttpContextPtr& ctx) {
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+        QJsonObject json = jsonDoc.object();
+
+        QJsonObject jsonBack;
+        QString msg;
+
+        jsonBack.insert("code", 0);
+
+        QJsonValue NumberJV = json.value("Number");         // 字号
+        int Number = NumberJV.toInt();
+        if(Number > 0 && Number < 4 ){
+            emit signalSetCurrentDefaultProgram(Number);
+            msg += "success";
+        }else{
+            msg += "error1 Number: 1 ~ 3;";
+            jsonBack["code"] = -1;
+        }
+
+        //return ctx->send(unpackNonMotorVehicleIllegalInfo(json).toJson().toStdString(), APPLICATION_JSON);
+        return ctx->send(QJsonDocument(jsonBack).toJson().toStdString(), APPLICATION_JSON);
+    });
+
     /*          GET            */
     /* API handlers */
     // curl -v http://ip:port/ping
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"time", "最后更新时间：2024年11月06日"},
+                    {"time", "最后更新时间：2024年11月12日"},
                     {"Name", "非机动车安全防治一体机"},
-                    {"Version", "1.10"},
+                    {"Version", "1.20"},
                     {"Msg", "整合版,包含gps、温湿度、诺瓦屏，依赖一个STH30.py"}
                     };
         return resp->Json(ex3);
