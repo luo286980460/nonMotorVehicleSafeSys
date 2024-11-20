@@ -241,19 +241,20 @@ QJsonDocument MyHttpServerWorker::unpackPlayProgram1(QJsonObject &json, int type
         jsonBack["code"] = -1;
     }
 
-    if(type == 2){
-        jsonBack.insert("msg", msg);
-        if(jsonBack.value("code").toInt() == 0){
-            emit this->signalSetDefaultTxt(Content);
-        }
-        return QJsonDocument(jsonBack);
-    }
-
     // 字号 合法性
     if(!FontSizeJV.isDouble() || FontSize <= 0){
         msg += "error2 FontSize not int or FontSize <= 0;";
         jsonBack["code"] = -1;
     }
+
+    if(type == 2){
+        jsonBack.insert("msg", msg);
+        if(jsonBack.value("code").toInt() == 0){
+            emit this->signalSetDefaultTxt(Content, FontSize);
+        }
+        return QJsonDocument(jsonBack);
+    }
+
 
     // 音频次数 合法性
     if(!AudioTimesJV.isDouble() || AudioTimes <= 0){
@@ -517,8 +518,6 @@ void MyHttpServerWorker::slotStart()
         return ctx->send(unpackPlayProgram2(json, 2).toJson().toStdString(), APPLICATION_JSON);
     });
 
-
-
     // 修改默认图片
     m_router.POST("/screenSet/DefaultProgrameNumber", [this](const HttpContextPtr& ctx) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
@@ -549,9 +548,9 @@ void MyHttpServerWorker::slotStart()
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"time", "最后更新时间：2024年11月12日"},
+                    {"time", "最后更新时间：2024年11月20日"},
                     {"Name", "非机动车安全防治一体机"},
-                    {"Version", "1.20"},
+                    {"Version", "1.30"},
                     {"Msg", "整合版,包含gps、温湿度、诺瓦屏，依赖一个STH30.py"}
                     };
         return resp->Json(ex3);

@@ -41,7 +41,7 @@ public slots:
     void slotPlayProgram2(QString base64);
     void slotPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent,
                           int audioSwitch, int audiovolume , QString base64);
-    void slotSetDefaultTxt(QString content);    // 设置默认节目的内容
+    void slotSetDefaultTxt(QString content, int size);    // 设置默认节目的内容
     void slotSetDefaultPic(QString base64);     // 设置默认节目的图片
     void slotSetCurrentDefaultProgram(int currentProgram);    // 设置当前默认节目的图片编号
 
@@ -56,8 +56,9 @@ private:
     int m_ProgramInterval = 3;
     QString m_illegalPicPath;               // 违法找片路径
     int m_imgSaveLevel = 10;
-    QString m_defaultTxt = "戴好头盔\\r\\n安全出行";
-    int m_currentDef = 3;
+    QString m_defaultTxt = "戴  文\\r\\n好  明\\r\\n头  出\\r\\n盔  行";
+    int m_defaultTxtSize = 50;
+    int m_currentDef = 1;
 };
 
 #endif // NOVACONTROLLERWORKER_H

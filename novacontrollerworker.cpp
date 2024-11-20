@@ -47,7 +47,7 @@ void NovaControllerWorker::PlayProgramDefault()
 void NovaControllerWorker::PlayProgramDefaultTxt()
 {
     char* program = QString(PROGRAM1)
-                        .arg(30)
+                        .arg(m_defaultTxtSize)
                         .arg(m_defaultTxt)
                         .arg(1)
                         .arg(" ")
@@ -68,7 +68,7 @@ void NovaControllerWorker::PlayProgramDefaultPic()
 void NovaControllerWorker::PlayProgramDefaultTxtAndPic()
 {
     char* program = QString(PROGRAM3)
-                        .arg(30)
+                        .arg(m_defaultTxtSize)
                         .arg(m_defaultTxt)
                         .arg(1)
                         .arg(" ")
@@ -263,9 +263,10 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int a
     m_Back2DefaultProgramTimeFlag = 0;
 }
 
-void NovaControllerWorker::slotSetDefaultTxt(QString content)
+void NovaControllerWorker::slotSetDefaultTxt(QString content, int size)
 {
     m_defaultTxt = content;
+    m_defaultTxtSize = size;
 }
 
 void NovaControllerWorker::slotSetDefaultPic(QString base64)
@@ -275,7 +276,7 @@ void NovaControllerWorker::slotSetDefaultPic(QString base64)
 
     // 保存图片
     if(!base64.isEmpty()){
-        image.save(m_illegalPicPath + DEFAULT_PIC_NAME, "jpg", m_imgSaveLevel);
+        image.save(m_illegalPicPath + DEFAULT_PIC_NAME, "png", m_imgSaveLevel);
         qDebug() << m_illegalPicPath + DEFAULT_PIC_NAME;
     }
 
