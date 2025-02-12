@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_NovaControllerWorker_t {
-    QByteArrayData data[16];
-    char stringdata0[181];
+    QByteArrayData data[20];
+    char stringdata0[251];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -37,24 +37,31 @@ QT_MOC_LITERAL(1, 21, 7), // "showMsg"
 QT_MOC_LITERAL(2, 29, 0), // ""
 QT_MOC_LITERAL(3, 30, 3), // "msg"
 QT_MOC_LITERAL(4, 34, 8), // "slotInit"
-QT_MOC_LITERAL(5, 43, 14), // "slotIllegalAct"
-QT_MOC_LITERAL(6, 58, 16), // "slotPlayProgram1"
-QT_MOC_LITERAL(7, 75, 8), // "fontSize"
-QT_MOC_LITERAL(8, 84, 7), // "content"
-QT_MOC_LITERAL(9, 92, 10), // "audioTimes"
-QT_MOC_LITERAL(10, 103, 12), // "voiceContent"
-QT_MOC_LITERAL(11, 116, 11), // "audioSwitch"
-QT_MOC_LITERAL(12, 128, 11), // "audiovolume"
-QT_MOC_LITERAL(13, 140, 16), // "slotPlayProgram2"
-QT_MOC_LITERAL(14, 157, 6), // "base64"
-QT_MOC_LITERAL(15, 164, 16) // "slotPlayProgram3"
+QT_MOC_LITERAL(5, 43, 16), // "slotPlayProgram1"
+QT_MOC_LITERAL(6, 60, 8), // "fontSize"
+QT_MOC_LITERAL(7, 69, 7), // "content"
+QT_MOC_LITERAL(8, 77, 10), // "audioTimes"
+QT_MOC_LITERAL(9, 88, 12), // "voiceContent"
+QT_MOC_LITERAL(10, 101, 11), // "audioSwitch"
+QT_MOC_LITERAL(11, 113, 11), // "audiovolume"
+QT_MOC_LITERAL(12, 125, 16), // "slotPlayProgram2"
+QT_MOC_LITERAL(13, 142, 6), // "base64"
+QT_MOC_LITERAL(14, 149, 16), // "slotPlayProgram3"
+QT_MOC_LITERAL(15, 166, 17), // "slotSetDefaultTxt"
+QT_MOC_LITERAL(16, 184, 4), // "size"
+QT_MOC_LITERAL(17, 189, 17), // "slotSetDefaultPic"
+QT_MOC_LITERAL(18, 207, 28), // "slotSetCurrentDefaultProgram"
+QT_MOC_LITERAL(19, 236, 14) // "currentProgram"
 
     },
     "NovaControllerWorker\0showMsg\0\0msg\0"
-    "slotInit\0slotIllegalAct\0slotPlayProgram1\0"
-    "fontSize\0content\0audioTimes\0voiceContent\0"
+    "slotInit\0slotPlayProgram1\0fontSize\0"
+    "content\0audioTimes\0voiceContent\0"
     "audioSwitch\0audiovolume\0slotPlayProgram2\0"
-    "base64\0slotPlayProgram3"
+    "base64\0slotPlayProgram3\0slotSetDefaultTxt\0"
+    "size\0slotSetDefaultPic\0"
+    "slotSetCurrentDefaultProgram\0"
+    "currentProgram"
 };
 #undef QT_MOC_LITERAL
 
@@ -64,7 +71,7 @@ static const uint qt_meta_data_NovaControllerWorker[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       8,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -72,24 +79,28 @@ static const uint qt_meta_data_NovaControllerWorker[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   44,    2, 0x06 /* Public */,
+       1,    1,   54,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       4,    0,   47,    2, 0x0a /* Public */,
-       5,    0,   48,    2, 0x0a /* Public */,
-       6,    6,   49,    2, 0x0a /* Public */,
-      13,    1,   62,    2, 0x0a /* Public */,
-      15,    7,   65,    2, 0x0a /* Public */,
+       4,    0,   57,    2, 0x0a /* Public */,
+       5,    6,   58,    2, 0x0a /* Public */,
+      12,    1,   71,    2, 0x0a /* Public */,
+      14,    7,   74,    2, 0x0a /* Public */,
+      15,    2,   89,    2, 0x0a /* Public */,
+      17,    1,   94,    2, 0x0a /* Public */,
+      18,    1,   97,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString,    3,
 
  // slots: parameters
     QMetaType::Void,
-    QMetaType::Void,
-    QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int,    7,    8,    9,   10,   11,   12,
-    QMetaType::Void, QMetaType::QString,   14,
-    QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int, QMetaType::QString,    7,    8,    9,   10,   11,   12,   14,
+    QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int,    6,    7,    8,    9,   10,   11,
+    QMetaType::Void, QMetaType::QString,   13,
+    QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int, QMetaType::QString,    6,    7,    8,    9,   10,   11,   13,
+    QMetaType::Void, QMetaType::QString, QMetaType::Int,    7,   16,
+    QMetaType::Void, QMetaType::QString,   13,
+    QMetaType::Void, QMetaType::Int,   19,
 
        0        // eod
 };
@@ -102,10 +113,12 @@ void NovaControllerWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c,
         switch (_id) {
         case 0: _t->showMsg((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 1: _t->slotInit(); break;
-        case 2: _t->slotIllegalAct(); break;
-        case 3: _t->slotPlayProgram1((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6]))); break;
-        case 4: _t->slotPlayProgram2((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 5: _t->slotPlayProgram3((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6])),(*reinterpret_cast< QString(*)>(_a[7]))); break;
+        case 2: _t->slotPlayProgram1((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6]))); break;
+        case 3: _t->slotPlayProgram2((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 4: _t->slotPlayProgram3((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6])),(*reinterpret_cast< QString(*)>(_a[7]))); break;
+        case 5: _t->slotSetDefaultTxt((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 6: _t->slotSetDefaultPic((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 7: _t->slotSetCurrentDefaultProgram((*reinterpret_cast< int(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -149,13 +162,13 @@ int NovaControllerWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 8)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 8;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 8)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 6;
+        _id -= 8;
     }
     return _id;
 }

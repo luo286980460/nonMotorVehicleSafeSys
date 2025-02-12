@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MyHttpServerWorker_t {
-    QByteArrayData data[17];
-    char stringdata0[184];
+    QByteArrayData data[22];
+    char stringdata0[275];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -47,16 +47,23 @@ QT_MOC_LITERAL(11, 112, 11), // "audiovolume"
 QT_MOC_LITERAL(12, 124, 18), // "signalPlayProgram2"
 QT_MOC_LITERAL(13, 143, 6), // "base64"
 QT_MOC_LITERAL(14, 150, 18), // "signalPlayProgram3"
-QT_MOC_LITERAL(15, 169, 9), // "slotStart"
-QT_MOC_LITERAL(16, 179, 4) // "post"
+QT_MOC_LITERAL(15, 169, 19), // "signalSetDefaultTxt"
+QT_MOC_LITERAL(16, 189, 4), // "size"
+QT_MOC_LITERAL(17, 194, 19), // "signalSetDefaultPic"
+QT_MOC_LITERAL(18, 214, 30), // "signalSetCurrentDefaultProgram"
+QT_MOC_LITERAL(19, 245, 14), // "currentProgram"
+QT_MOC_LITERAL(20, 260, 9), // "slotStart"
+QT_MOC_LITERAL(21, 270, 4) // "post"
 
     },
     "MyHttpServerWorker\0signalPost\0\0url\0"
     "data\0signalPlayProgram1\0fontSize\0"
     "content\0audioTimes\0voiceContent\0"
     "audioSwitch\0audiovolume\0signalPlayProgram2\0"
-    "base64\0signalPlayProgram3\0slotStart\0"
-    "post"
+    "base64\0signalPlayProgram3\0signalSetDefaultTxt\0"
+    "size\0signalSetDefaultPic\0"
+    "signalSetCurrentDefaultProgram\0"
+    "currentProgram\0slotStart\0post"
 };
 #undef QT_MOC_LITERAL
 
@@ -66,28 +73,34 @@ static const uint qt_meta_data_MyHttpServerWorker[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       9,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       4,       // signalCount
+       7,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    2,   44,    2, 0x06 /* Public */,
-       5,    6,   49,    2, 0x06 /* Public */,
-      12,    1,   62,    2, 0x06 /* Public */,
-      14,    7,   65,    2, 0x06 /* Public */,
+       1,    2,   59,    2, 0x06 /* Public */,
+       5,    6,   64,    2, 0x06 /* Public */,
+      12,    1,   77,    2, 0x06 /* Public */,
+      14,    7,   80,    2, 0x06 /* Public */,
+      15,    2,   95,    2, 0x06 /* Public */,
+      17,    1,  100,    2, 0x06 /* Public */,
+      18,    1,  103,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-      15,    0,   80,    2, 0x0a /* Public */,
-      16,    2,   81,    2, 0x0a /* Public */,
+      20,    0,  106,    2, 0x0a /* Public */,
+      21,    2,  107,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, QMetaType::QString, QMetaType::QByteArray,    3,    4,
     QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int,    6,    7,    8,    9,   10,   11,
     QMetaType::Void, QMetaType::QString,   13,
     QMetaType::Void, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::QString, QMetaType::Int, QMetaType::Int, QMetaType::QString,    6,    7,    8,    9,   10,   11,   13,
+    QMetaType::Void, QMetaType::QString, QMetaType::Int,    7,   16,
+    QMetaType::Void, QMetaType::QString,   13,
+    QMetaType::Void, QMetaType::Int,   19,
 
  // slots: parameters
     QMetaType::Void,
@@ -106,8 +119,11 @@ void MyHttpServerWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
         case 1: _t->signalPlayProgram1((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6]))); break;
         case 2: _t->signalPlayProgram2((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 3: _t->signalPlayProgram3((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< QString(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< QString(*)>(_a[4])),(*reinterpret_cast< int(*)>(_a[5])),(*reinterpret_cast< int(*)>(_a[6])),(*reinterpret_cast< QString(*)>(_a[7]))); break;
-        case 4: _t->slotStart(); break;
-        case 5: _t->post((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QByteArray(*)>(_a[2]))); break;
+        case 4: _t->signalSetDefaultTxt((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 5: _t->signalSetDefaultPic((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 6: _t->signalSetCurrentDefaultProgram((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 7: _t->slotStart(); break;
+        case 8: _t->post((*reinterpret_cast< QString(*)>(_a[1])),(*reinterpret_cast< QByteArray(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -137,6 +153,27 @@ void MyHttpServerWorker::qt_static_metacall(QObject *_o, QMetaObject::Call _c, i
             using _t = void (MyHttpServerWorker::*)(int , QString , int , QString , int , int , QString );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MyHttpServerWorker::signalPlayProgram3)) {
                 *result = 3;
+                return;
+            }
+        }
+        {
+            using _t = void (MyHttpServerWorker::*)(QString , int );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MyHttpServerWorker::signalSetDefaultTxt)) {
+                *result = 4;
+                return;
+            }
+        }
+        {
+            using _t = void (MyHttpServerWorker::*)(QString );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MyHttpServerWorker::signalSetDefaultPic)) {
+                *result = 5;
+                return;
+            }
+        }
+        {
+            using _t = void (MyHttpServerWorker::*)(int );
+            if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MyHttpServerWorker::signalSetCurrentDefaultProgram)) {
+                *result = 6;
                 return;
             }
         }
@@ -172,13 +209,13 @@ int MyHttpServerWorker::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 9;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 6)
+        if (_id < 9)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 6;
+        _id -= 9;
     }
     return _id;
 }
@@ -209,6 +246,27 @@ void MyHttpServerWorker::signalPlayProgram3(int _t1, QString _t2, int _t3, QStri
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t3))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t4))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t5))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t6))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t7))) };
     QMetaObject::activate(this, &staticMetaObject, 3, _a);
+}
+
+// SIGNAL 4
+void MyHttpServerWorker::signalSetDefaultTxt(QString _t1, int _t2)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))), const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t2))) };
+    QMetaObject::activate(this, &staticMetaObject, 4, _a);
+}
+
+// SIGNAL 5
+void MyHttpServerWorker::signalSetDefaultPic(QString _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 5, _a);
+}
+
+// SIGNAL 6
+void MyHttpServerWorker::signalSetCurrentDefaultProgram(int _t1)
+{
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
+    QMetaObject::activate(this, &staticMetaObject, 6, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

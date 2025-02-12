@@ -1,4 +1,4 @@
-#include "myhttpserver.h"
+﻿#include "myhttpserver.h"
 #include "myhttpserverworker.h"
 
 MyHttpServer::MyHttpServer(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QObject *parent)

@@ -1,4 +1,4 @@
-#ifndef MYHTTPSERVERWORKER_H
+﻿#ifndef MYHTTPSERVERWORKER_H
 #define MYHTTPSERVERWORKER_H
 
 #include "include/libhv/HttpServer.h"

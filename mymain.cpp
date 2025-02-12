@@ -1,4 +1,4 @@
-#include <QSettings>
+﻿#include <QSettings>
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QDebug>
