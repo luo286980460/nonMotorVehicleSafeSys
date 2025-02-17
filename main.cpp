@@ -1,6 +1,16 @@
-#include "mymain.h"
+﻿#include "mymain.h"
 
 #include <QCoreApplication>
+
+#include <QFile>
+#include <QTextStream>
+#include <QMutex>
+#include <QDateTime>
+#include <QApplication>
+#include <QSettings>
+#include <QFileInfo>
+
+#define INIFILE_PORT "/cfg.ini"
 
 /*
  * 环境：
@@ -22,22 +32,48 @@
  *      诺瓦服务端口：23335
 */
 
+// 全局文件对象和互斥锁（确保多线程安全）
+static QFile s_logFile;
+static QMutex s_mutex;
+
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg);
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    // Set up code that uses the Qt event loop here.
-    // Call a.quit() or a.exit() to quit the application.
-    // A not very useful example would be including
-    // #include <QTimer>
-    // near the top of the file and calling
-    // QTimer::singleShot(5000, &a, &QCoreApplication::quit);
-    // which quits the application after 5 seconds.
+    QString iniPath = QCoreApplication::applicationDirPath() + INIFILE_PORT;
+    QSettings settings(iniPath, QSettings::IniFormat);
+    settings.setIniCodec("utf-8");
+    if(settings.value("logSwitch/switch", 0).toInt() == 1){
+        // 安装自定义消息处理函数
+        qInstallMessageHandler(messageHandler);
+    }
 
-    // If you do not need a running Qt event loop, remove the call
-    // to a.exec() or use the Non-Qt Plain C++ Application template.
 
     MyMain myMain;
 
     return a.exec();
+}
+
+void messageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    QMutexLocker locker(&s_mutex); // 加锁防止多线程竞争
+
+    // 打开日志文件（如果未打开）
+    if (!s_logFile.isOpen()) {
+
+        s_logFile.setFileName(QApplication::applicationDirPath() + "/Pics/log.txt"); // 日志文件名
+        s_logFile.open(QIODevice::WriteOnly | QIODevice::Append);
+    }
+
+    // 格式化日志信息
+    QString logEntry = QString("[%1] %2: %3\n")
+                           .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz"))
+                           .arg(qFormatLogMessage(type, context, msg)) // 类型和消息
+                           .arg(context.function ? context.function : ""); // 函数名（可选）
+
+    // 写入文件
+    QTextStream stream(&s_logFile);
+    stream << logEntry;
+    stream.flush(); // 确保立即写入
 }

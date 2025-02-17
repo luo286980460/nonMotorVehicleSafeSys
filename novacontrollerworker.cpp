@@ -1,4 +1,4 @@
-#include <QApplication>
+﻿#include <QApplication>
 #include <QImage>
 #include <QDebug>
 #include <QDateTime>
@@ -17,6 +17,7 @@ NovaControllerWorker::NovaControllerWorker(QString ip, int Back2DefaultProgram, 
     , m_port(5000)
     , m_Back2DefaultProgramTime(Back2DefaultProgram)
     , m_Back2DefaultProgramTimeFlag(Back2DefaultProgram)
+    //, m_illegalPicPath("/home/ls/nonMotorVehicleSafeSys/Pics/")
 {
     m_illegalPicPath = QApplication::applicationDirPath() + "/Pics";
     QDir dir(m_illegalPicPath);
@@ -218,12 +219,13 @@ void NovaControllerWorker::slotPlayProgram2(QString base64)
 void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int audioTimes, QString voiceContent
                                             , int audioSwitch, int audiovolume , QString base64)
 {
+    // qDebug() << "-------------------------------------------slotPlayProgram3 " << base64.size();
     QImage image;
     image.loadFromData(QByteArray::fromBase64(base64.toLocal8Bit()));
 
     // 保存图片
     if(!base64.isEmpty()){
-        image.save(m_illegalPicPath + ILLEGAL_PIC_NAME, "jpg", m_imgSaveLevel);
+        qDebug() << "保存违法图片： " << image.save(m_illegalPicPath + ILLEGAL_PIC_NAME, "jpg", m_imgSaveLevel);
         qDebug() << m_illegalPicPath + ILLEGAL_PIC_NAME;
     }
 

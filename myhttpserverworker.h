@@ -18,7 +18,7 @@ class MyHttpServerWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QObject *parent = nullptr);
+    explicit MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QString ImgPathHead, QObject *parent = nullptr);
     ~MyHttpServerWorker();
 
 private:
@@ -59,6 +59,7 @@ private:
     QString m_face2BackUrl;
     QString m_face2BoxUrl;
     QString m_place;
+    QString m_ImgPathHead;
 };
 
 #endif // MYHTTPSERVERWORKER_H

@@ -1,4 +1,4 @@
-#ifndef MYMAIN_H
+﻿#ifndef MYMAIN_H
 #define MYMAIN_H
 
 #include <QObject>
@@ -15,7 +15,7 @@ public:
 
 private:
     void loadIni();
-    void initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place);
+    void initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place, QString ImgPathHead);
     void initNovaController(QString ip, int backToDefTime);
     void initGps(QString GpsPortName, QString GpsUrl);
 

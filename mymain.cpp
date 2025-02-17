@@ -26,6 +26,7 @@ void MyMain::loadIni()
     QString Face2BoxUrl;
     QString NovaScreenIp;
     QString Place;
+    QString ImgPathHead;
     int BackToDefTime;
 
     QString iniPath = QCoreApplication::applicationDirPath() + INIFILE_PORT;
@@ -45,12 +46,14 @@ void MyMain::loadIni()
     NovaScreenIp = settings.value("Nova/NovaScreenIp", "-1").toString();
     BackToDefTime = settings.value("Nova/BackToDefTime", -1).toInt();
     Place = settings.value("Url/Place", "-1").toString();
+    ImgPathHead = settings.value("Url/ImgPathHead", "-1").toString();
+    //qDebug() << "-----------------------------------ImgPathHead: " << ImgPathHead;
 
     if(NonMotorVehicleSafeSysPort < 1 || NovaScreenServerPort < 1  || Face2BackUrl == "-1"  || Face2BoxUrl == "-1"){
         showMsg("****** cfg.ini NonMotorVehicleSafeSysPort < 1 || NovaScreenServerPort < 1  || Face2BackUrl == -1  || Face2BoxUrl == -1******");
         return;
     }else{
-        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place);
+        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead);
     }
 
     if(GpsPortName == "-1" || GpsUrl == "-1"){
@@ -77,9 +80,9 @@ void MyMain::loadIni()
     }
 }
 
-void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place)
+void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place, QString ImgPathHead)
 {
-    m_myHttpServer = new MyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place);
+    m_myHttpServer = new MyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead);
 
     m_myHttpServer->start();
 }

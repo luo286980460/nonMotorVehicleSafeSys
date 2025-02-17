@@ -28,13 +28,14 @@
 #define KEY_AUDIOSWITCH "AudioSwitch"   // 音频开关
 #define KEY_AUDIOVOLUME "Audiovolume"   // 音频音量
 
-MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QObject *parent)
+MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QString ImgPathHead, QObject *parent)
     : QObject{parent}
     , m_port(port)
     , m_novaScreen(novaScreen)
     , m_face2BackUrl(face2BackUrl)
     , m_face2BoxUrl(face2BoxUrl)
     , m_place(Place)
+    , m_ImgPathHead(ImgPathHead)
 {
     m_novaScreenIpPort = "127.0.0.1:" + QString::number(novaScreen);
 
@@ -66,13 +67,20 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     QJsonObject break_rule_info = json.value("break_rule_info").toObject();
     QString b64StrBackImg = break_rule_info.value("img").toString();
     QImage imgBack = QImage::fromData(QByteArray::fromBase64(b64StrBackImg.toLocal8Bit()));
+
+    // QImage imgBack;
+    // bool b = imgBack.load(m_ImgPathHead + b64StrBackImg, "jpg");
+
+    //qDebug() << m_ImgPathHead + b64StrBackImg << "          " << b;
+    //system(QString("rm " + m_ImgPathHead + b64StrBackImg).toUtf8());
+
     e_illegalAct illegalAct = (e_illegalAct)break_rule_info.value("break_type").toInt();
 
     // 备份命令
-    QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
-    file.open(QIODevice::Append);
-    file.write(QJsonDocument(json).toJson());
-    file.close();
+    // QFile file("/home/nonMotorVehicleSafeSys/libs/1.log");
+    // file.open(QIODevice::Append);
+    // file.write(QJsonDocument(json).toJson());
+    // file.close();
 
     //qDebug() << json;
 
@@ -420,21 +428,40 @@ void MyHttpServerWorker::slotStart()
     // curl -v http://ip:port/echo -d "hello,world!"
     m_router.POST("/YuanHong/nonMotorVehicleIllegalInfo", [this](const HttpContextPtr& ctx) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
+
+        qDebug() << "**********    !!!!!!!!!!    **********" << jsonDoc;
+
         QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
         QJsonObject break_rule_info = jsonDoc.object().value("break_rule_info").toObject();
         QJsonObject face_info = jsonDoc.object().value("face_info").toObject();
 
-        QString url = face_info.value("img").toString();    // 人脸图片的路径
-        QString BackgroundUrl = break_rule_info.value("img").toString();    // 人脸图片的路径
+        //QString url = m_ImgPathHead + face_info.value("img").toString();    // 人脸图片的路径
+        //QString BackgroundUrl = m_ImgPathHead + break_rule_info.value("img").toString();    // 人脸图片的路径
         // 图片转为base64保存
-        QString base64;
-        QImage img(url);
-        QImage BackgroundImg(BackgroundUrl);
-
-        //qDebug() << jsonDoc;
+        QString BackgroundBase64 = break_rule_info.value("img").toString();
+        QString FaceBase64 = face_info.value("img").toString();
+        // QImage img(url);
+        // QImage BackgroundImg(BackgroundUrl);
 
         // AtU8aRV7yK3YbANv
 
+        int wfxw = break_rule_info.value("break_type").toInt();   // 违法行为
+        switch(wfxw){
+        case 1:
+            wfxw = 70491;
+            break;
+        case 2:
+            wfxw = 70112;
+            break;
+        case 3:
+            wfxw = 2004;
+            break;
+        case 4:
+            break;
+        default:
+            wfxw = 0;
+            break;
+        }
 
         QJsonObject jsonUpWide;
         jsonUpWide.insert("key", "AtU8aRV7yK3YbANv");
@@ -445,26 +472,33 @@ void MyHttpServerWorker::slotStart()
         jsonUp.insert("xm", "");        // 姓名
         jsonUp.insert("icard", "");     // 身份证号码
         jsonUp.insert("wfsj", break_rule_info.value("time_1").toString().left(19));      // 违法时间yyyy-MM-dd hh24:mi:ss
-        jsonUp.insert("wfxw", QString::number(break_rule_info.value("break_type").toInt()));      // 违法行为，编码
+        jsonUp.insert("wfxw", wfxw);      // 违法行为，编码
         jsonUp.insert("wfdd", m_place); // 违法地点，编码
         jsonUp.insert("type", "2");     // 图片传输方式1 url  2 base64
         // jsonUp.insert("photo1", face_info.value("img").toString());     // 图片1
-        jsonUp.insert("photo1", img2base64(BackgroundImg)); // 图片1
+        jsonUp.insert("photo1", BackgroundBase64);  // 图片1
         jsonUp.insert("photo2", "");    // 图片2
         jsonUp.insert("photo3", "");    // 特征抠图
         //jsonUp.insert("photo4", face_info.value("img").toString());     // 人脸抠图，人脸抓拍时候传输
-        jsonUp.insert("photo4", img2base64(img)); // 人脸抠图，人脸抓拍时候传输
-        jsonUp.insert("DevNum", m_place); //
+        jsonUp.insert("photo4", FaceBase64); // 人脸抠图，人脸抓拍时候传输
+        jsonUp.insert("DevNum", break_rule_info.value("devNum").toString()); //
 
 
         jsonUpWide.insert("data", jsonUp);
 
         signalPost(this->m_face2BackUrl, QJsonDocument(jsonUpWide).toJson());     // 发送给后台(黄杨)
-        qDebug() << "jsonUpWide : \n" << jsonUpWide;
-        qDebug() << "\n";
+        // qDebug() << "jsonUpWide : \n" << jsonUpWide;
+        // qDebug() << "\n";
 
-        //QString str;str.toUtf8()
+        // QString str;str.toUtf8()
 
+
+        // system(QString("rm " + url).toUtf8());
+        // system(QString("rm " + BackgroundUrl).toUtf8());
+
+        // BackgroundUrl.chop(6);
+        // BackgroundUrl = BackgroundUrl + ".json";
+        // system(QString("rm " + BackgroundUrl).toUtf8());
         return ctx->send(QString(unpackNonMotorVehicleIllegalInfo(json).toJson()).toUtf8().toStdString(), APPLICATION_JSON);
         // QJsonObject jsonTmp;
         // jsonTmp.insert("test", img2base64(img));
@@ -560,9 +594,9 @@ void MyHttpServerWorker::slotStart()
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"time", "最后更新时间：2025年02月12日"},
+                    {"time", "最后更新时间：2025年02月17日"},
                     {"Name", "非机动车安全防治一体机"},
-                    {"Version", "1.30"},
+                    {"Version", "1.41"},
                     {"Msg", "整合版,包含gps、温湿度、诺瓦屏，依赖一个STH30.py"}
                     };
         return resp->Json(ex3);
