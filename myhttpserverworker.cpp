@@ -149,7 +149,7 @@ QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &
     // jsonData.insert("Img", img2base64(imgCar));
     base64 = img2base64(imgCar);
 
-    //QByteArray data = QJsonDocument(jsonData).toJson();
+    //QByteArray data = QJsonDocument(jsonData).toJson();0
 
     // 上屏
     // emit signalPost(QString(NOVA_PROGRAM_TEXT_AND_PIC).arg(m_novaScreenIpPort), data);
@@ -472,7 +472,7 @@ void MyHttpServerWorker::slotStart()
         jsonUp.insert("xm", "");        // 姓名
         jsonUp.insert("icard", "");     // 身份证号码
         jsonUp.insert("wfsj", break_rule_info.value("time_1").toString().left(19));      // 违法时间yyyy-MM-dd hh24:mi:ss
-        jsonUp.insert("wfxw", wfxw);      // 违法行为，编码
+        jsonUp.insert("wfxw", QString::number(wfxw));      // 违法行为，编码
         jsonUp.insert("wfdd", m_place); // 违法地点，编码
         jsonUp.insert("type", "2");     // 图片传输方式1 url  2 base64
         // jsonUp.insert("photo1", face_info.value("img").toString());     // 图片1
