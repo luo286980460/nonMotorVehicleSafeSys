@@ -10,7 +10,6 @@ CONFIG += c++17 cmdline
 SOURCES += \
         gps.cpp \
         main.cpp \
-        myhttpserver.cpp \
         myhttpserverworker.cpp \
         mymain.cpp \
         novacontroller.cpp \
@@ -24,7 +23,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     NovaHeader.h \
     gps.h \
-    myhttpserver.h \
     myhttpserverworker.h \
     mymain.h \
     novacontroller.h \

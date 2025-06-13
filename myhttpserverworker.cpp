@@ -13,6 +13,8 @@
 #include <QPainter>
 #include <QDebug>
 
+QNetworkAccessManager* g_manager;    // 网络请求管理
+
 #define TEST_HTTP                   0
 #define IMG_SAVE_PATH               "/Pics"
 
@@ -28,7 +30,8 @@
 #define KEY_AUDIOSWITCH "AudioSwitch"   // 音频开关
 #define KEY_AUDIOVOLUME "Audiovolume"   // 音频音量
 
-MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QString ImgPathHead, QObject *parent)
+MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl,
+                                       QString Place, QString ImgPathHead, int score, QObject *parent)
     : QObject{parent}
     , m_port(port)
     , m_novaScreen(novaScreen)
@@ -36,6 +39,7 @@ MyHttpServerWorker::MyHttpServerWorker(int port, int novaScreen, QString face2Ba
     , m_face2BoxUrl(face2BoxUrl)
     , m_place(Place)
     , m_ImgPathHead(ImgPathHead)
+    , m_score(score)
 {
     m_novaScreenIpPort = "127.0.0.1:" + QString::number(novaScreen);
 
@@ -54,7 +58,7 @@ MyHttpServerWorker::~MyHttpServerWorker()
 
 QJsonDocument MyHttpServerWorker::unpackNonMotorVehicleIllegalInfo(QJsonObject &json)
 {
-    qDebug() << QDateTime::currentDateTime().toString("******************************************************* ： yyyyMMdd hh:mm:ss.zzz");
+    // qDebug() << QDateTime::currentDateTime().toString("******************************************************* ： yyyyMMdd hh:mm:ss.zzz");
 
     int fontSize = 30;
     QString content;
@@ -179,7 +183,20 @@ void MyHttpServerWorker::post(QString url, QByteArray data)
 
     // 发送请求
     //m_manager->post(request, data);
-    m_manager->post(request, data);
+    QNetworkReply *reply = g_manager->post(request, data);
+
+    // qDebug() << " ********************* request  " << request.url();
+    qDebug() << " ********************* reply  " << reply->readAll();
+    // qDebug() << " ********************* data  " << data;
+
+    // if(reply) {
+    //     delete reply;
+    // }
+
+    connect(reply, &QNetworkReply::finished, reply, &QNetworkReply::deleteLater);
+    // connect(reply, &QNetworkReply::finished, this, [](QNetworkReply *reply){
+    //     delete reply;
+    // });
 }
 
 void MyHttpServerWorker::postBack(QNetworkReply* reply)
@@ -192,7 +209,7 @@ void MyHttpServerWorker::postBack(QNetworkReply* reply)
     QJsonParseError jsonError;
     QJsonDocument doucment = QJsonDocument::fromJson(bytes, &jsonError);
     if (jsonError.error != QJsonParseError::NoError) {
-        qDebug() << QStringLiteral("解析Json失败");
+        //qDebug() << QStringLiteral("解析Json失败");
         return;
     }
 
@@ -207,7 +224,7 @@ void MyHttpServerWorker::postBack(QNetworkReply* reply)
             if (value.isString())
             {
                 QString data = value.toString();
-                qDebug() << data;
+                //qDebug() << data;
             }
         }
     }
@@ -406,7 +423,15 @@ void MyHttpServerWorker::sendToBackServer(QJsonObject &json)
 void MyHttpServerWorker::slotStart()
 {
     //qDebug() << "***********************************************";
-    m_manager = new QNetworkAccessManager;
+    g_manager = new QNetworkAccessManager;
+
+    // connect(&g_manager, &QNetworkAccessManager::finished, this, [](QNetworkReply* reply){
+    //     if(reply) {
+    //         qDebug() << "finished11111111111111111";
+    //         reply->deleteLater();
+    //     }
+    // });
+
 
     HV_MEMCHECK;
 
@@ -429,11 +454,44 @@ void MyHttpServerWorker::slotStart()
     m_router.POST("/YuanHong/nonMotorVehicleIllegalInfo", [this](const HttpContextPtr& ctx) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
 
-        qDebug() << "**********    !!!!!!!!!!    **********" << jsonDoc;
+        // qDebug() << "**********    !!!!!!!!!!    **********\n" << jsonDoc;
 
         QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
         QJsonObject break_rule_info = jsonDoc.object().value("break_rule_info").toObject();
         QJsonObject face_info = jsonDoc.object().value("face_info").toObject();
+
+
+        qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+
+        qDebug() << json;
+
+        qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+
+        if(face_info.isEmpty()) {
+            qDebug() << "face_info: 为空";
+            return 200;
+        }
+
+        // *************** 如果分数不够,直接退出 ***************
+        QJsonObject face_recog = face_info.value("face_recog").toObject();
+        if(face_recog.isEmpty()) {
+
+            qDebug() << "face_recog: 为空";
+            return 200;
+        }
+
+        double Score = face_recog.value("scores").toDouble();
+        if(face_info.isEmpty()) return 200;
+
+        if(Score < m_score) {
+
+            qDebug() << "不显示分数阈值: " << m_score << "    实际分数: " << Score;
+            return 200;
+        }
+        // *************** 如果分数不够,直接退出 ***************
+
+
+        qDebug() << "发送图片";
 
         //QString url = m_ImgPathHead + face_info.value("img").toString();    // 人脸图片的路径
         //QString BackgroundUrl = m_ImgPathHead + break_rule_info.value("img").toString();    // 人脸图片的路径
@@ -463,42 +521,40 @@ void MyHttpServerWorker::slotStart()
             break;
         }
 
+
         QJsonObject jsonUpWide;
         jsonUpWide.insert("key", "AtU8aRV7yK3YbANv");
         jsonUpWide.insert("method", "wfxx");
 
         QJsonObject jsonUp;
-        jsonUp.insert("hphm", "");      // 车牌
-        jsonUp.insert("xm", "");        // 姓名
-        jsonUp.insert("icard", "");     // 身份证号码
-        jsonUp.insert("wfsj", break_rule_info.value("time_1").toString().left(19));      // 违法时间yyyy-MM-dd hh24:mi:ss
-        jsonUp.insert("wfxw", QString::number(wfxw));      // 违法行为，编码
-        jsonUp.insert("wfdd", m_place); // 违法地点，编码
-        jsonUp.insert("type", "2");     // 图片传输方式1 url  2 base64
+        jsonUp.insert("hphm", "");          // 车牌
+        jsonUp.insert("xm", "");            // 姓名
+        jsonUp.insert("icard", "");         // 身份证号码
+        jsonUp.insert("wfsj",               // 违法时间yyyy-MM-dd hh24:mi:ss
+                      break_rule_info.value("time_1").toString().left(19));
+        jsonUp.insert("wfxw",               // 违法行为，编码
+                      QString::number(wfxw));
+        jsonUp.insert("wfdd", m_place);     // 违法地点，编码
+        jsonUp.insert("type", "2");         // 图片传输方式1 url  2 base64
         // jsonUp.insert("photo1", face_info.value("img").toString());     // 图片1
-        jsonUp.insert("photo1", BackgroundBase64);  // 图片1
-        jsonUp.insert("photo2", "");    // 图片2
-        jsonUp.insert("photo3", "");    // 特征抠图
+        jsonUp.insert("photo1",             // 图片1
+                      BackgroundBase64);
+        jsonUp.insert("photo2", "");        // 图片2
+        jsonUp.insert("photo3", "");        // 特征抠图
         //jsonUp.insert("photo4", face_info.value("img").toString());     // 人脸抠图，人脸抓拍时候传输
-        jsonUp.insert("photo4", FaceBase64); // 人脸抠图，人脸抓拍时候传输
+        jsonUp.insert("photo4", FaceBase64);// 人脸抠图，人脸抓拍时候传输
         jsonUp.insert("DevNum", break_rule_info.value("devNum").toString()); //
 
 
         jsonUpWide.insert("data", jsonUp);
 
+        //post(this->m_face2BackUrl, QJsonDocument(jsonUpWide).toJson());
+
         signalPost(this->m_face2BackUrl, QJsonDocument(jsonUpWide).toJson());     // 发送给后台(黄杨)
+
         // qDebug() << "jsonUpWide : \n" << jsonUpWide;
         // qDebug() << "\n";
 
-        // QString str;str.toUtf8()
-
-
-        // system(QString("rm " + url).toUtf8());
-        // system(QString("rm " + BackgroundUrl).toUtf8());
-
-        // BackgroundUrl.chop(6);
-        // BackgroundUrl = BackgroundUrl + ".json";
-        // system(QString("rm " + BackgroundUrl).toUtf8());
         return ctx->send(QString(unpackNonMotorVehicleIllegalInfo(json).toJson()).toUtf8().toStdString(), APPLICATION_JSON);
         // QJsonObject jsonTmp;
         // jsonTmp.insert("test", img2base64(img));
@@ -534,10 +590,11 @@ void MyHttpServerWorker::slotStart()
         QJsonDocument jsonDoc = QJsonDocument::fromJson(QByteArray::fromStdString(ctx->body()));
         QJsonObject json = jsonDoc.object();// = jsonDoc.object().value("break_rule_info").toObject();
 
-        //qDebug() << jsonDoc;
+        // qDebug() << jsonDoc;
 
 
         signalPost(this->m_face2BoxUrl, jsonDoc.toJson());     // 发送给分析盒
+        //post(this->m_face2BoxUrl, jsonDoc.toJson());
 
         return ctx->sendString("success");
     });
@@ -594,9 +651,9 @@ void MyHttpServerWorker::slotStart()
     m_router.GET("/ping", [](HttpRequest* req, HttpResponse* resp) {
         Q_UNUSED(req);
         hv::Json ex3 = {
-                    {"time", "最后更新时间：2025年02月17日"},
+                    {"time", "最后更新时间：2025年06月13日"},
                     {"Name", "非机动车安全防治一体机"},
-                    {"Version", "1.41"},
+                    {"Version", "1.42"},
                     {"Msg", "整合版,包含gps、温湿度、诺瓦屏，依赖一个STH30.py"}
                     };
         return resp->Json(ex3);

@@ -194,7 +194,7 @@ void NovaControllerWorker::slotPlayProgram2(QString base64)
     // 保存图片并且上屏
     if(!base64.isEmpty()){
         image.save(m_illegalPicPath + ILLEGAL_PIC_NAME, "jpg", m_imgSaveLevel);
-        qDebug() << m_illegalPicPath + ILLEGAL_PIC_NAME;
+        // qDebug() << m_illegalPicPath + ILLEGAL_PIC_NAME;
     }
 
     // 下发文件 1
@@ -226,7 +226,7 @@ void NovaControllerWorker::slotPlayProgram3(int fontSize, QString content, int a
     // 保存图片
     if(!base64.isEmpty()){
         qDebug() << "保存违法图片： " << image.save(m_illegalPicPath + ILLEGAL_PIC_NAME, "jpg", m_imgSaveLevel);
-        qDebug() << m_illegalPicPath + ILLEGAL_PIC_NAME;
+        // qDebug() << m_illegalPicPath + ILLEGAL_PIC_NAME;
     }
 
     // 下发文件 1

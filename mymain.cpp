@@ -5,7 +5,7 @@
 
 #include "mymain.h"
 #include "gps.h"
-#include "myhttpserver.h"
+#include "myhttpserverworker.h"
 #include "novacontroller.h"
 
 #define INIFILE_PORT         "/cfg.ini"
@@ -28,6 +28,7 @@ void MyMain::loadIni()
     QString Place;
     QString ImgPathHead;
     int BackToDefTime;
+    int score;
 
     QString iniPath = QCoreApplication::applicationDirPath() + INIFILE_PORT;
     if(!QFileInfo::exists(iniPath)){
@@ -39,6 +40,7 @@ void MyMain::loadIni()
     settings.setIniCodec("utf-8");
     NonMotorVehicleSafeSysPort = settings.value("Port/NonMotorVehicleSafeSysPort", -1).toInt();
     NovaScreenServerPort = settings.value("Port/NovaScreenServerPort", -1).toInt();
+    score = settings.value("Port/Score", -1).toInt();
     GpsPortName = settings.value("Url/GpsPortName", "-1").toString();
     GpsUrl = settings.value("Url/GpsUrl", "-1").toString();
     Face2BackUrl = settings.value("Url/Face2BackUrl", "-1").toString();
@@ -53,7 +55,7 @@ void MyMain::loadIni()
         showMsg("****** cfg.ini NonMotorVehicleSafeSysPort < 1 || NovaScreenServerPort < 1  || Face2BackUrl == -1  || Face2BoxUrl == -1******");
         return;
     }else{
-        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead);
+        initMyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead, score);
     }
 
     if(GpsPortName == "-1" || GpsUrl == "-1"){
@@ -71,20 +73,21 @@ void MyMain::loadIni()
     }
 
     if(m_myHttpServer && m_NovaController){
-        connect(m_myHttpServer, &MyHttpServer::signalPlayProgram1, m_NovaController, &NovaController::signalPlayProgram1);
-        connect(m_myHttpServer, &MyHttpServer::signalPlayProgram2, m_NovaController, &NovaController::signalPlayProgram2);
-        connect(m_myHttpServer, &MyHttpServer::signalPlayProgram3, m_NovaController, &NovaController::signalPlayProgram3);
-        connect(m_myHttpServer, &MyHttpServer::signalSetDefaultTxt, m_NovaController, &NovaController::signalSetDefaultTxt);
-        connect(m_myHttpServer, &MyHttpServer::signalSetDefaultPic, m_NovaController, &NovaController::signalSetDefaultPic);
-        connect(m_myHttpServer, &MyHttpServer::signalSetCurrentDefaultProgram, m_NovaController, &NovaController::signalSetCurrentDefaultProgram);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalPlayProgram1, m_NovaController, &NovaController::signalPlayProgram1);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalPlayProgram2, m_NovaController, &NovaController::signalPlayProgram2);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalPlayProgram3, m_NovaController, &NovaController::signalPlayProgram3);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalSetDefaultTxt, m_NovaController, &NovaController::signalSetDefaultTxt);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalSetDefaultPic, m_NovaController, &NovaController::signalSetDefaultPic);
+        connect(m_myHttpServer, &MyHttpServerWorker::signalSetCurrentDefaultProgram, m_NovaController, &NovaController::signalSetCurrentDefaultProgram);
     }
 }
 
-void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place, QString ImgPathHead)
+void MyMain::initMyHttpServer(int NonMotorVehicleSafeSysPort, int NovaScreenServerPort, QString Face2BackUrl, QString Face2BoxUrl, QString Place, QString ImgPathHead, int score)
 {
-    m_myHttpServer = new MyHttpServer(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead);
+    m_myHttpServer = new MyHttpServerWorker(NonMotorVehicleSafeSysPort, NovaScreenServerPort, Face2BackUrl, Face2BoxUrl, Place, ImgPathHead, score);
 
-    m_myHttpServer->start();
+    //m_myHttpServer->start();
+    m_myHttpServer->slotStart();
 }
 
 void MyMain::initNovaController(QString ip, int backToDefTime)

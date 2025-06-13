@@ -18,7 +18,8 @@ class MyHttpServerWorker : public QObject
 {
     Q_OBJECT
 public:
-    explicit MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl, QString Place, QString ImgPathHead, QObject *parent = nullptr);
+    explicit MyHttpServerWorker(int port, int novaScreen, QString face2BackUrl, QString face2BoxUrl,
+                                QString Place, QString ImgPathHead, int score, QObject *parent = nullptr);
     ~MyHttpServerWorker();
 
 private:
@@ -53,13 +54,13 @@ private:
     hv::HttpService m_router;
     hv::HttpServer m_server;
     QString m_imgSavePath;
-    QNetworkAccessManager* m_manager;    // 网络请求管理
     QString m_aPlayerIpPort;
     QString m_novaScreenIpPort;
     QString m_face2BackUrl;
     QString m_face2BoxUrl;
     QString m_place;
     QString m_ImgPathHead;
+    int m_score = 0;    // 人脸分数阈值(大于等于此分数才显示节目)
 };
 
 #endif // MYHTTPSERVERWORKER_H
